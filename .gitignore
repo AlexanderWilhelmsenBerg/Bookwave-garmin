@@ -1,0 +1,10 @@
+# Connect IQ build outputs
+out/
+apps/companion/bin/
+*.prg
+*.iq
+
+# Local signing material
+developer_key
+developer_key.der
+developer_key.pem

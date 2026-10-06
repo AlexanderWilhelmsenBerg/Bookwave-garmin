@@ -245,6 +245,20 @@ Reconciliation must never start playback.
 
 ## Phase 1 — Companion shell and persisted state
 
+### Implementation status — 2026-10-06
+
+Implemented on `mcp/phase-1-companion-shell`:
+
+- Companion Device App project and fēnix 8 AMOLED targets;
+- shared PlaybackSnapshot model and major-version validation;
+- last-known-good persistence using Application.Storage;
+- never-synced, invalid-state and stored/disconnected UI;
+- deterministic debug/test fixtures;
+- Run No Evil unit-test coverage for core validation/format/persistence behavior;
+- Phase 1 architecture, protocol and test/sideload documentation.
+
+Acceptance is **not complete** until the code is compiled/run with the Connect IQ SDK and the physical fēnix 8 checklist in `docs/testing/phase-1-companion.md` is executed. Phone transport remains Phase 2.
+
 ### Scope
 
 Create `apps/companion`.
@@ -667,8 +681,8 @@ As of initial repository planning:
 - [x] Initial `AGENTS.md` drafted.
 - [x] Initial `plan.md` drafted.
 - [ ] Repository/toolchain foundation.
-- [ ] Companion application shell.
-- [ ] Shared wire protocol.
+- [x] Companion application shell implemented on Phase 1 branch (build/simulator/physical acceptance still pending).
+- [ ] Shared wire protocol (Phase 1 conceptual/persisted contract documented; Phase 2 transport encoding intentionally undecided).
 - [ ] Android Connect IQ bridge.
 - [ ] Physical fēnix 8 handshake.
 - [ ] Playback commands.
