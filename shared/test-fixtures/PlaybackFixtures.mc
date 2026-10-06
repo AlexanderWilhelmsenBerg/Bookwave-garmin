@@ -1,3 +1,4 @@
+(:debug)
 module PlaybackFixtures {
     function neverSynced() {
         return null;
