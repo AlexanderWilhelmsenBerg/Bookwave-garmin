@@ -1,0 +1,79 @@
+using Toybox.Application.Storage;
+using Toybox.Lang;
+
+class SnapshotStore {
+    const STORAGE_KEY = "bookwave.playbackSnapshot.v1";
+    const LOAD_NEVER_SYNCED = "never_synced";
+    const LOAD_VALID = "valid";
+    const LOAD_INVALID = "invalid";
+
+    var _loadStatus = LOAD_NEVER_SYNCED;
+    var _lastError = null;
+
+    function getLoadStatus() {
+        return _loadStatus;
+    }
+
+    function getLastError() {
+        return _lastError;
+    }
+
+    function load() {
+        _lastError = null;
+
+        var stored = Storage.getValue(STORAGE_KEY);
+        if (stored == null) {
+            _loadStatus = LOAD_NEVER_SYNCED;
+            return null;
+        }
+
+        var snapshot = SnapshotCodec.decode(stored);
+        if (snapshot == null) {
+            _loadStatus = LOAD_INVALID;
+            _lastError = SnapshotCodec.getLastError();
+            try {
+                Storage.deleteValue(STORAGE_KEY);
+            } catch (ex) {
+                // The invalid value remains quarantined by validation even if deletion fails.
+            }
+            return null;
+        }
+
+        _loadStatus = LOAD_VALID;
+        return snapshot;
+    }
+
+    function saveIfValid(candidate) {
+        _lastError = null;
+
+        var encoded = candidate;
+        if (candidate instanceof PlaybackSnapshot) {
+            encoded = candidate.toDictionary();
+        }
+
+        var snapshot = SnapshotCodec.decode(encoded);
+        if (snapshot == null) {
+            _lastError = SnapshotCodec.getLastError();
+            return false;
+        }
+
+        try {
+            Storage.setValue(STORAGE_KEY, snapshot.toDictionary());
+            _loadStatus = LOAD_VALID;
+            return true;
+        } catch (ex) {
+            _lastError = "storage_write_failed";
+            return false;
+        }
+    }
+
+    function clear() {
+        try {
+            Storage.deleteValue(STORAGE_KEY);
+        } catch (ex) {
+            // A missing value or unavailable store already satisfies the privacy intent.
+        }
+        _loadStatus = LOAD_NEVER_SYNCED;
+        _lastError = null;
+    }
+}

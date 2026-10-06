@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iq:manifest xmlns:iq="http://www.garmin.com/xml/connectiq" version="3">
+    <iq:application
+        entry="BookWaveCompanionApp"
+        id="6f5b4fa4a2db4d42a9d41ee67df34d11"
+        launcherIcon="@Drawables.LauncherIcon"
+        minSdkVersion="6.0.0"
+        name="@Strings.AppName"
+        type="watch-app">
+        <iq:products>
+            <iq:product id="fenix843mm"/>
+            <iq:product id="fenix847mm"/>
+        </iq:products>
+        <iq:permissions/>
+        <iq:languages>
+            <iq:language>eng</iq:language>
+        </iq:languages>
+        <iq:barrels/>
+    </iq:application>
+</iq:manifest>
