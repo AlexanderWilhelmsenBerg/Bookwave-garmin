@@ -205,7 +205,7 @@ Record physical findings here with watch model, firmware, SDK version, build SHA
 
 ## GitHub CI
 
-The repository runs **Garmin Verification** for implementation-branch pushes and pull requests to `main`.
+The repository runs **Garmin Verification** for pull requests to `main`, pushes to `main`, and explicit manual dispatches.
 
 CI uses the Connect IQ 9.2.0 build/release tool images and a temporary CI-only 4096-bit RSA signing key generated inside each job. The temporary key is not the production/store signing identity and is discarded with the runner.
 
