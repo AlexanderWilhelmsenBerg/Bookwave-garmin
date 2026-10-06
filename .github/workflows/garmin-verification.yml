@@ -1,0 +1,119 @@
+name: Garmin Verification
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+      - "mcp/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: garmin-verification-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  guardrails:
+    name: Repository guardrails
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Phase 1 boundaries
+        run: bash tools/ci/guardrails.sh
+
+  compile:
+    name: Compile Companion (${{ matrix.device }})
+    needs: guardrails
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        device:
+          - fenix843mm
+          - fenix847mm
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate temporary CI signing key
+        shell: bash
+        run: |
+          set -euo pipefail
+          openssl genrsa -out developer_key.pem 4096
+          openssl pkcs8 -topk8 -inform PEM -outform DER \
+            -in developer_key.pem -out developer_key.der -nocrypt
+          rm developer_key.pem
+          chmod 600 developer_key.der
+
+      - name: Compile Companion
+        uses: blackshadev/garmin-connectiq-build-action@7f92305153c18b024c9cb02206145ba2415abbb2
+        with:
+          projectJungle: apps/companion/monkey.jungle
+          developerKey: developer_key.der
+          outputPath: out/BookWaveCompanion-${{ matrix.device }}.prg
+          device: ${{ matrix.device }}
+          typeCheck: "1"
+
+  unit-test-compile:
+    name: Compile Run No Evil tests
+    needs: guardrails
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate temporary CI signing key
+        shell: bash
+        run: |
+          set -euo pipefail
+          openssl genrsa -out developer_key.pem 4096
+          openssl pkcs8 -topk8 -inform PEM -outform DER \
+            -in developer_key.pem -out developer_key.der -nocrypt
+          rm developer_key.pem
+          chmod 600 developer_key.der
+
+      - name: Compile test-enabled Companion
+        uses: blackshadev/garmin-connectiq-build-action@7f92305153c18b024c9cb02206145ba2415abbb2
+        with:
+          projectJungle: apps/companion/monkey.jungle
+          developerKey: developer_key.der
+          outputPath: out/BookWaveCompanionTests-fenix847mm.prg
+          device: fenix847mm
+          typeCheck: "1"
+          extraArgs: "--unit-test"
+
+  package:
+    name: Export Companion package
+    needs:
+      - guardrails
+      - compile
+      - unit-test-compile
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate temporary CI signing key
+        shell: bash
+        run: |
+          set -euo pipefail
+          openssl genrsa -out developer_key.pem 4096
+          openssl pkcs8 -topk8 -inform PEM -outform DER \
+            -in developer_key.pem -out developer_key.der -nocrypt
+          rm developer_key.pem
+          chmod 600 developer_key.der
+
+      - name: Export Connect IQ package
+        uses: blackshadev/garmin-connectiq-release-action@d7a4a7a5758147469d4f70a8e32c0165e8441103
+        with:
+          projectJungle: apps/companion/monkey.jungle
+          developerKey: developer_key.der
+          outputPath: out/BookWaveCompanion.iq

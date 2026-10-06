@@ -201,3 +201,26 @@ All items remain **UNVERIFIED** until tested on the actual fēnix 8.
 - [ ] UNVERIFIED — no unexpected battery/network activity occurs.
 
 Record physical findings here with watch model, firmware, SDK version, build SHA and result.
+
+
+## GitHub CI
+
+The repository runs **Garmin Verification** for implementation-branch pushes and pull requests to `main`.
+
+CI uses the Connect IQ 9.2.0 build/release tool images and a temporary CI-only 4096-bit RSA signing key generated inside each job. The temporary key is not the production/store signing identity and is discarded with the runner.
+
+Required CI checks:
+
+- **Repository guardrails** — verifies the Phase 1 app boundary, no Garmin permissions, no Android source, no watch-face/Data Field production directories, and no obvious credential fields in Garmin source.
+- **Compile Companion (fenix843mm)** — normal PRG compilation for the 43 mm fēnix 8 AMOLED target.
+- **Compile Companion (fenix847mm)** — normal PRG compilation for the 47/51 mm fēnix 8 AMOLED target.
+- **Compile Run No Evil tests** — compiles the test-enabled application for `fenix847mm` with Garmin's `--unit-test` flag.
+- **Export Companion package** — performs an export build across the manifest's supported products.
+
+The build action is pinned to the exact commit behind its Connect IQ 9.2.0 release. CI therefore does not float to a newer Garmin SDK/action implicitly.
+
+### What CI does not prove
+
+Garmin Run No Evil **execution** still requires the Connect IQ simulator. The maintained 9.2.0 headless build image deliberately does not include a working simulator, so CI currently verifies that the complete test suite compiles but does not claim the test methods executed.
+
+Simulator execution and the physical fēnix 8 acceptance checklist remain separate gates. A green GitHub workflow must never be recorded as physical-device PASS.
