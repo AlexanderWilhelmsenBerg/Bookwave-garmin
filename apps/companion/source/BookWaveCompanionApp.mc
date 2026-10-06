@@ -9,7 +9,7 @@ class BookWaveCompanionApp extends Application.AppBase {
     function initialize() {
         AppBase.initialize();
         _snapshot = null;
-        _loadStatus = SnapshotStore.LOAD_NEVER_SYNCED;
+        _loadStatus = SnapshotStoreState.LOAD_NEVER_SYNCED;
         _loadError = null;
     }
 

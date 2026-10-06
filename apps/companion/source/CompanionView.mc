@@ -26,7 +26,7 @@ class CompanionView extends WatchUi.View {
 
         drawCentered(dc, cx, height * 8 / 100, Graphics.FONT_SMALL, "BOOKWAVE");
 
-        if (_loadStatus == SnapshotStore.LOAD_INVALID) {
+        if (_loadStatus == SnapshotStoreState.LOAD_INVALID) {
             drawInvalidState(dc, cx, height);
             return;
         }

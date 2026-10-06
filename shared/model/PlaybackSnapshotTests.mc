@@ -96,11 +96,11 @@ class PlaybackSnapshotTests {
     static function malformedPersistedStateFailsSafely(logger) {
         var store = new SnapshotStore();
         store.clear();
-        Storage.setValue(SnapshotStore.STORAGE_KEY, {"broken" => true});
+        Storage.setValue(SnapshotStoreState.STORAGE_KEY, {"broken" => true});
 
         var restored = store.load();
         var result = restored == null
-            && store.getLoadStatus() == SnapshotStore.LOAD_INVALID;
+            && store.getLoadStatus() == SnapshotStoreState.LOAD_INVALID;
 
         store.clear();
         return result;
