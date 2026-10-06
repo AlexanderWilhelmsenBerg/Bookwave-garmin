@@ -106,11 +106,52 @@ class PlaybackSnapshotTests {
         return result;
     }
 
-    // Simulator-only fixture seeding path. Test code is excluded from normal builds.
+    // Simulator-only fixture seeding paths. Test code and fixtures are excluded
+    // from release builds and there is no production demo-data switch.
     (:test)
     static function seedPlayingFixture(logger) {
+        return seed(PlaybackFixtures.playing());
+    }
+
+    (:test)
+    static function seedPausedFixture(logger) {
+        return seed(PlaybackFixtures.paused());
+    }
+
+    (:test)
+    static function seedVeryLongTitleFixture(logger) {
+        return seed(PlaybackFixtures.veryLongTitle());
+    }
+
+    (:test)
+    static function seedMissingChapterFixture(logger) {
+        return seed(PlaybackFixtures.missingChapter());
+    }
+
+    (:test)
+    static function seedOver24HoursFixture(logger) {
+        return seed(PlaybackFixtures.over24Hours());
+    }
+
+    (:test)
+    static function seedNearFinishedFixture(logger) {
+        return seed(PlaybackFixtures.nearFinished());
+    }
+
+    // These two deliberately assert rejection instead of persisting bad state.
+    (:test)
+    static function invalidFixtureRejected(logger) {
+        return !seed(PlaybackFixtures.invalidSnapshot());
+    }
+
+    (:test)
+    static function unsupportedProtocolFixtureRejected(logger) {
+        return !seed(PlaybackFixtures.unsupportedProtocol());
+    }
+
+    private static function seed(value) {
         var store = new SnapshotStore();
         store.clear();
-        return store.saveIfValid(PlaybackFixtures.playing());
+        return store.saveIfValid(value);
     }
 }
