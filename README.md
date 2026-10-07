@@ -49,3 +49,12 @@ Phase 2 implements the foreground receiver, ordered snapshot/clear acknowledgeme
 Android bridge integration. Physical acceptance remains pending. [#3](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/3) tracks that integration. See
 [cross-repository dependencies](docs/reconciliation.md) and [Phase 2 test inventory](docs/testing/phase-2-transport.md).
 WatchShelf + Sidecar remain the initial offline-audio path; helper/provider replacement is optional future work.
+
+## Downloadable development acceptance artifacts
+
+Garmin Verification retains each target's PRG, the fenix847mm Run No Evil PRG and the exported IQ package
+for 30 days. Each artifact includes BUILD-INFO with exact source, target, binary hashes and the generated
+CI public-key fingerprint. Only out/ is uploaded; private developer keys are excluded. These are
+development builds signed with fresh temporary CI keys, not an owner-signed Connect IQ Store release.
+Sideload/run acceptance against the matching target and record its identity; preserve the app/storage
+boundary when changing development signing identities. No simulator or physical PASS follows upload.

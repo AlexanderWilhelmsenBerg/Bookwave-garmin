@@ -61,6 +61,26 @@ jobs:
           device: ${{ matrix.device }}
           typeCheck: "1"
 
+
+
+      - name: Record development build identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          printf 'source=%s\ntarget=%s\nsigning=temporary-ci-development-key\n' "${{ github.sha }}" "${{ matrix.device }}" > out/BUILD-INFO.txt
+          openssl pkey -inform DER -in developer_key.der -pubout | openssl dgst -sha256 >> out/BUILD-INFO.txt
+          find out -maxdepth 1 -type f \( -name '*.prg' -o -name '*.iq' \) -exec sha256sum {} + >> out/BUILD-INFO.txt
+
+
+      - name: Retain BookWaveCompanion-${{ matrix.device }} for acceptance
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: BookWaveCompanion-${{ matrix.device }}-${{ github.sha }}
+          path: out/
+          if-no-files-found: error
+          retention-days: 30
+
   unit-test-compile:
     name: Compile Run No Evil tests
     needs: guardrails
@@ -89,6 +109,26 @@ jobs:
           typeCheck: "1"
           extraArgs: "--unit-test"
 
+
+
+      - name: Record development build identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          printf 'source=%s\ntarget=%s\nsigning=temporary-ci-development-key\n' "${{ github.sha }}" "fenix847mm-unit-tests" > out/BUILD-INFO.txt
+          openssl pkey -inform DER -in developer_key.der -pubout | openssl dgst -sha256 >> out/BUILD-INFO.txt
+          find out -maxdepth 1 -type f \( -name '*.prg' -o -name '*.iq' \) -exec sha256sum {} + >> out/BUILD-INFO.txt
+
+
+      - name: Retain BookWaveCompanionTests-fenix847mm for acceptance
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: BookWaveCompanionTests-fenix847mm-${{ github.sha }}
+          path: out/
+          if-no-files-found: error
+          retention-days: 30
+
   package:
     name: Export Companion package
     needs:
@@ -116,3 +156,22 @@ jobs:
           projectJungle: apps/companion/monkey.jungle
           developerKey: developer_key.der
           outputPath: out/BookWaveCompanion.iq
+
+
+      - name: Record development build identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          printf 'source=%s\ntarget=%s\nsigning=temporary-ci-development-key\n' "${{ github.sha }}" "connect-iq-package" > out/BUILD-INFO.txt
+          openssl pkey -inform DER -in developer_key.der -pubout | openssl dgst -sha256 >> out/BUILD-INFO.txt
+          find out -maxdepth 1 -type f \( -name '*.prg' -o -name '*.iq' \) -exec sha256sum {} + >> out/BUILD-INFO.txt
+
+
+      - name: Retain BookWaveCompanion-package for acceptance
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: BookWaveCompanion-package-${{ github.sha }}
+          path: out/
+          if-no-files-found: error
+          retention-days: 30

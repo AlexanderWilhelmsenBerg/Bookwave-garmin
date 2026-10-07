@@ -35,3 +35,12 @@ durable-clear restore. These methods are compiled but execution is NOT RUN. All 
 remain NOT RUN; no owner hardware was used during this delivery. Android's bridge delivery log owns
 its executed JVM/Media3 regressions and forced gate. Later CI/source records supersede these head-specific
 build results without promoting missing physical evidence to PASS.
+
+## Downloadable development acceptance artifacts
+
+Garmin Verification retains each target's PRG, the fenix847mm Run No Evil PRG and the exported IQ package
+for 30 days. Each artifact includes BUILD-INFO with exact source, target, binary hashes and the generated
+CI public-key fingerprint. Only out/ is uploaded; private developer keys are excluded. These are
+development builds signed with fresh temporary CI keys, not an owner-signed Connect IQ Store release.
+Sideload/run acceptance against the matching target and record its identity; preserve the app/storage
+boundary when changing development signing identities. No simulator or physical PASS follows upload.
