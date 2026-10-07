@@ -4,7 +4,9 @@
 snapshot delivery, durable clear/snapshot acknowledgements and bounded reconnect handling are
 implemented. See [the shared wire contract](docs/transport-contract.md). Build/test-compilation and physical acceptance
 are recorded separately in the Phase 2 inventory. Commands, reconciliation/Force sync,
-complications and other Garmin surfaces remain deferred. Earlier Phase 1 descriptions below
+provider/device controls and BookWave complication publishing are owner-selected planned work
+([provider plan](docs/device-management-plan.md), [future face feed](docs/watchface-state-plan.md)).
+Watch face and Data Field implementation remain deferred. Earlier Phase 1 descriptions below
 describe the persisted model and its original acceptance, not the current transport scope.
 
 
@@ -20,7 +22,7 @@ Build a Garmin extension for BookWave that gives the user:
 3. a BookWave Now Playing complication/state source;
 4. a custom BookWave watch face;
 5. a running Data Field combining audiobook state with Garmin activity data;
-6. optional future native/offline BookWave audio-provider work only if WatchShelf proves insufficient.
+6. a separate BookWave Audio Provider using existing WatchShelf Sidecar for the owner-requested download/inventory/session controls.
 
 The project starts with the **Companion**, not the watch face.
 
@@ -56,7 +58,10 @@ WatchShelf remains responsible for:
 - transcoding/chunking through WatchShelf Sidecar;
 - writing offline watch progress back to Audiobookshelf.
 
-BookWave-Garmin will initially coexist with it rather than replace it.
+WatchShelf may continue during transition. The owner subsequently selected a separate BookWave Audio
+Provider using existing Sidecar, justified by the absence of a supported remote queue/inventory/events
+interface. The selected implementation is planned; it does not replace/remove Sidecar. See
+[the provider/device plan](docs/device-management-plan.md).
 
 ---
 
@@ -131,7 +136,10 @@ The applications share concepts and fixtures, but remain independently installab
              └──── playback commands → BookWave Android
 ```
 
-Initial BookWave-Garmin does **not** replace WatchShelf offline playback.
+The diagram describes the initial coexistence path. The owner-selected next integration adds a
+separate BookWave Audio Provider → existing Sidecar path and Android device control/report messages.
+Companion PHONE and provider GARMIN state will publish to a future face through Complications.
+No provider or publication runtime is delivered by this plan update.
 
 ---
 
@@ -232,6 +240,18 @@ Reconciliation must never start playback.
 ---
 
 # 7. Delivery phases
+
+## Current sequencing — owner decision 2026-10-07
+
+Phase numbers below identify capabilities; the owner's selected next integration is [Garmin #7](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/7),
+not an instruction to wait until the old optional Phase 9 deferral. Establish provider/account/wire fixtures;
+then deliver the provider/Android download-inventory-device-menu vertical slice; then actual listening
+events and Force sync; then validated [BookWave Complications state](docs/watchface-state-plan.md)
+([#8](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/8)). Keep Phase 1/2 acceptance #2/#3 and GD/GF hardware cases open until actually run.
+Commands reuse Android's existing executor; a missing phone does not silently pass hardware gates or
+block independent implementation. The watch face itself remains behind physical Companion/control/
+reconciliation and publication acceptance. Data Field remains later; Android reliability keeps priority.
+
 
 ## Phase 0 — Repository and toolchain foundation
 
@@ -389,15 +409,15 @@ Implement:
 
 Implement automatic reconciliation and:
 
-**Settings → Playback → Garmin / Playback synchronization → Force sync**
+**Settings → Playback → Devices → expanded watch menu → Force sync**
 
 Force sync should:
 
 1. journal current phone position;
 2. flush pending BookWave progress;
-3. request Garmin's latest stored snapshot when reachable;
+3. request actual provider listening events/inventory and latest validated display state when reachable;
 4. fetch fresh Audiobookshelf progress;
-5. compare legitimate update/listen times;
+5. compare legitimate update/listen times; a PHONE display snapshot's observedAt is not a listening event;
 6. resolve the authoritative state;
 7. update BookWave local state;
 8. update Audiobookshelf if required;
@@ -428,7 +448,9 @@ Test:
 
 ### Scope
 
-Companion publishes a small BookWave Now Playing projection:
+Companion PHONE and the selected Audio Provider GARMIN state publish through Garmin Complications,
+following [the accepted future face feed plan](docs/watchface-state-plan.md). The consumer does not
+read another app's private Storage or authenticate to ABS. Minimum logical projection:
 
 ```text
 title
@@ -436,7 +458,9 @@ chapter
 percentage
 playing
 source
-updatedAt
+observedAt
+listeningEventAt (when known)
+freshness
 privacyState
 ```
 
@@ -559,23 +583,26 @@ Questions:
 - Can BookWave controls/state coexist cleanly with WatchShelf offline playback?
 - Is deeper integration worth the maintenance cost?
 
-Do not start an Audio Provider rewrite before this evaluation.
+This was the original evaluation gate. The 2026-10-07 owner decision selects a separate provider using
+existing Sidecar for the requested remote controls; it supersedes that deferral for this scope. Continue
+logging physical tradeoffs; removing/replacing Sidecar still requires a separate decision.
 
 ---
 
-## Phase 9 — Optional BookWave Audio Provider
+## Phase 9 — Selected BookWave Audio Provider using existing Sidecar
 
-Only enter this phase if the WatchShelf coexistence evaluation demonstrates clear value.
+**Owner decision accepted 2026-10-07; runtime not implemented.** [Garmin #7](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/7) and
+[the device/account/wire/test plan](docs/device-management-plan.md) are the current scope. Build a separate
+Audio Content Provider with a distinct app ID, native Wi-Fi/cache/queue/playback ownership and actual
+listening-event journal. Android adds Room-backed inline device management, the completed authorized
+phone-book picker, truthful watch downloads/timestamps and idempotent Force sync. Sidecar retrieves/
+transcodes the selected server item; this is not a local phone-file transfer. No normal ABS credentials
+travel in the Companion protocol. Reviewed MIT reuse may be considered with notices; no source has
+been copied. Do not import destructive upgrades or private logging.
 
-Possible approaches:
-
-1. continue using WatchShelf unchanged;
-2. contribute improvements upstream;
-3. build a WatchShelf-sidecar-compatible BookWave Audio Provider;
-4. fork WatchShelf with retained MIT notices;
-5. eventually build a BookWave-native offline stack.
-
-This is intentionally deferred.
+Publish real GARMIN state alongside Companion PHONE state for the [future watch face](docs/watchface-state-plan.md).
+The face itself, Data Field and replacing/removing Sidecar remain deferred. GD-01–10/GF-01–07 and
+existing transport acceptance stay NOT RUN until evidence is logged.
 
 ---
 
@@ -689,7 +716,9 @@ Must include:
 - privacy/profile handling;
 - physical acceptance.
 
-This milestone gates the BookWave Now Playing complication and watch face.
+This milestone's physical acceptance, together with publication acceptance, gates the watch face.
+The owner-selected publisher contract/implementation can be developed with provider/device work
+while missing hardware acceptance stays explicitly logged.
 
 ---
 
@@ -704,11 +733,14 @@ As of the 2026-10-07 reconciliation:
 - [ ] Physical Phase 1 fēnix8 acceptance ([#2](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/2)).
 - [x] Shared wire protocol/foreground transport implemented with Android counterpart (PR #5).
 - [ ] Executed simulator and physical interoperability acceptance ([#3](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/3)).
-- [ ] Android bridge review/merge and physical handshake.
+- [x] Android bridge review/merge (Android PR #240); physical handshake remains in #3.
 - [ ] Playback commands through Android's action contract.
 - [ ] Reconciliation / Android Settings Force sync.
-- [ ] Complication/state publisher, then watch face, then Running Data Field.
-- [ ] Physical WatchShelf coexistence evaluation; optional Audio Provider decision remains deferred.
+- [x] Owner selected separate BookWave Audio Provider using existing Sidecar ([#7](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/7)).
+- [ ] Provider/device controls, real events and Force sync implementation; GD-01–10 hardware acceptance.
+- [x] Owner selected BookWave Complications feed for a future watch face ([#8](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/8)).
+- [ ] PHONE/GARMIN publisher implementation and GF-01–07 acceptance, then gated watch face, then Data Field.
+- [ ] Physical WatchShelf/provider tradeoff evidence; Sidecar replacement remains outside selected scope.
 
 No phase is accepted by compilation alone. Android reliability remains its own primary roadmap lane;
 this reconciliation does not begin new runtime implementation or a physical test campaign.

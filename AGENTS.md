@@ -9,7 +9,7 @@ The product is expected to grow into a small family of Connect IQ applications t
 - **BookWave Companion** — phone-connected controls, state, reconciliation participation, and complication publishing.
 - **BookWave Watch Face** — a low-power presentation surface for current audiobook state.
 - **BookWave Running Data Field** — audiobook state alongside Garmin activity metrics.
-- **BookWave Audio Provider** — optional future work only if replacing or extending WatchShelf is justified by physical usage.
+- **BookWave Audio Provider** — owner-selected separate Audio Content Provider using existing WatchShelf Sidecar; implementation/acceptance is planned in `docs/device-management-plan.md`.
 
 The initial implementation priority is the **Companion**. Do not start with the watch face.
 
@@ -55,7 +55,7 @@ WatchShelf is an external integration and reference implementation.
 For the initial BookWave-Garmin phases:
 
 - Keep using WatchShelf + WatchShelf Sidecar for Garmin offline audiobook download/playback.
-- Do not fork or replace the WatchShelf Audio Content Provider unless physical acceptance demonstrates a concrete need.
+- The 2026-10-07 owner decision selects a separate BookWave Audio Provider using existing Sidecar for remote download/inventory/listening control. It supersedes the prior optional-provider/evaluation-only deferral for this scope; see `docs/device-management-plan.md`. Removing/replacing Sidecar remains deferred.
 - Do not copy WatchShelf internals merely because they exist.
 - Protocol-compatible integration may be added later if justified.
 - Any reused WatchShelf code must comply with its MIT license and retain required notices.
@@ -75,7 +75,8 @@ Bookwave-garmin/
 ├── apps/
 │   ├── companion/
 │   ├── watchface/
-│   └── run-data-field/
+│   ├── run-data-field/
+│   └── audio-provider/
 ├── shared/
 │   ├── protocol/
 │   ├── model/
@@ -84,7 +85,7 @@ Bookwave-garmin/
 └── tools/
 ```
 
-The watch face and Data Field belong in this repository but are **separate Connect IQ applications with separate application IDs and build artifacts**.
+The watch face, Data Field and selected Audio Provider belong in this repository but are **separate Connect IQ applications with separate application IDs and build artifacts**. Their listed directories are a target structure, not a claim of implementation. The Companion and provider will expose a versioned BookWave Complications feed for a future watch face; see `docs/watchface-state-plan.md`. The face itself stays behind the physical acceptance gates below.
 
 Do not create a separate repository for the watch face unless an actual distribution/tooling constraint later requires it.
 

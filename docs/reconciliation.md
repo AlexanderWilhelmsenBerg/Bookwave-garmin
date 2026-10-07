@@ -14,7 +14,9 @@ remains readable. This implementation status is separate from physical acceptanc
 Garmin owns Monkey C, manifests, watch storage, receiver and future Garmin surfaces. Android owns
 Media3/playback, profile/lock authorization, ABS/session/progress, Mobile SDK adapter, commands,
 reconciliation and Settings Force sync. The bridge observes the existing owner; it never creates a second
-player or initiates playback. WatchShelf/Sidecar remain the initial offline engine; replacement is deferred.
+player or initiates playback. The selected separate BookWave Audio Provider will own native watch
+media/events using existing WatchShelf Sidecar. Provider/control/feed runtime remains planned; removing
+Sidecar is not selected.
 [Integration policy](watchshelf-integration.md).
 
 ## Ordered dependencies
@@ -25,10 +27,15 @@ player or initiates playback. WatchShelf/Sidecar remain the initial offline engi
    [#3](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/3) and
    [G-02-01–10](testing/phase-2-transport.md). Build/test-compilation/export passes; simulator method
    execution and physical cases remain NOT RUN. Android forced strict verification/PR CI remains required.
-3. Add allowlisted commands through Android's existing action contract, then legitimate-event
-   reconciliation/Settings Force sync without automatic Play. No max(position) conflict rule.
-4. Accept Companion Milestone2 before complications/watch face/Data Field implementation.
-5. Evaluate physical coexistence before optional provider/helper replacement.
+3. Implement the owner-selected [provider/device management plan](device-management-plan.md) under
+   [#7](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/7) with Android #119: account/wire boundary, download/inventory/settings vertical
+   slice, real events and Force sync. Hardware tests GD-01–10 remain logged, not passed.
+4. Publish validated PHONE/GARMIN [state for the future face](watchface-state-plan.md) under
+   [#8](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/8). Physical Companion/control/reconciliation acceptance and publication acceptance
+   still gate the watch face itself. Running Data Field and replacing Sidecar remain later.
+5. Allowlisted phone playback commands reuse Android's existing action contract. They do not gate
+   download/inventory implementation; validate them before accepting the future face's control milestone.
+   No reconciliation autoplays or chooses max(position).
 
 ## Limits and current acceptance
 
@@ -40,5 +47,5 @@ timestamp for future reconciliation. Credentials/hosts are never transferred.
 
 PR5 checks run37627686906 pass both fenix targets, test-enabled compilation and package export after a
 callback typing correction. Six transport/storage Run No Evil methods are compiled, not executed.
-Acceptance issues #2/#3 and Android#119 remain open. Garmin does not block Android release or outrank
+Acceptance issues #2/#3, selected provider #7, future face feed #8 and Android#119 remain open. Garmin does not block Android release or outrank
 Android reliability. The earlier candidate-only reconciliation is superseded by this implementation.
