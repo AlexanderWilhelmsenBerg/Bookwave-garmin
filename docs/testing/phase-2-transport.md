@@ -28,8 +28,8 @@ Phase 2 adds the foreground receiver and Communications permission. No physical 
 
 ## Automated implementation evidence — 2026-10-07
 
-PR5 run37627686906 passes guardrails, fenix843mm/fenix847mm compilations, Run No Evil method
-compilation and package export after correcting callback types. Five new methods cover strict envelope
+PR5 run37630137658 passes guardrails, fenix843mm/fenix847mm compilations, Run No Evil method
+compilation and package export after correcting callback types. Six new methods cover strict envelope
 types, privacy-clear ordering, stale/duplicate/old-stream rejection, epoch precision/unknown fields and
 durable-clear restore. These methods are compiled but execution is NOT RUN. All physical rows above
 remain NOT RUN; no owner hardware was used during this delivery. Android's bridge delivery log owns

@@ -328,7 +328,7 @@ Communications receiver, shared ordered-state contract, nonce handshake, sequenc
 durable snapshot/clear acknowledgements, redaction tombstone and truthful recent-state/stored UI.
 Android incorporates candidate6239a148 with captured queue ownership, privacy/generation guards,
 bounded paused-state retries and lifecycle callback rejection. Both repositories carry the
-[same wire contract](docs/transport-contract.md). PR CI37627686906 passes guardrails, both supported
+[same wire contract](docs/transport-contract.md). PR CI37630137658 passes guardrails, both supported
 target builds, test-method compilation and package export. Run No Evil execution and physical
 acceptance remain NOT RUN under [#3](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/3)
 and [G-02-01–10](docs/testing/phase-2-transport.md). Phase 2 implementation does not accept Milestone 1

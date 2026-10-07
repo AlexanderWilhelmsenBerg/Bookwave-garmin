@@ -39,6 +39,6 @@ is the phone snapshot, not proof of watch-local audio. Projection updatedAt is n
 timestamp for future reconciliation. Credentials/hosts are never transferred.
 
 PR5 checks run37627686906 pass both fenix targets, test-enabled compilation and package export after a
-callback typing correction. Five transport/storage Run No Evil methods are compiled, not executed.
+callback typing correction. Six transport/storage Run No Evil methods are compiled, not executed.
 Acceptance issues #2/#3 and Android#119 remain open. Garmin does not block Android release or outrank
 Android reliability. The earlier candidate-only reconciliation is superseded by this implementation.
