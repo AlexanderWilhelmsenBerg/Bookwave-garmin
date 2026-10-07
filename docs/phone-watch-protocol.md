@@ -4,7 +4,9 @@
 snapshot delivery, durable clear/snapshot acknowledgements and bounded reconnect handling are
 implemented. See [the shared wire contract](transport-contract.md). Build/test-compilation and physical acceptance
 are recorded separately in the Phase 2 inventory. Commands, reconciliation/Force sync,
-complications and other Garmin surfaces remain deferred. Earlier Phase 1 descriptions below
+provider/device controls and BookWave complication publishing are selected planned work
+([provider plan](device-management-plan.md), [future face feed](watchface-state-plan.md)).
+Watch face and Data Field implementation remain deferred. Earlier Phase 1 descriptions below
 describe the persisted model and its original acceptance, not the current transport scope.
 
 

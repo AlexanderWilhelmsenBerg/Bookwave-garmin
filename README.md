@@ -4,7 +4,9 @@
 snapshot delivery, durable clear/snapshot acknowledgements and bounded reconnect handling are
 implemented. See [the shared wire contract](docs/transport-contract.md). Build/test-compilation and physical acceptance
 are recorded separately in the Phase 2 inventory. Commands, reconciliation/Force sync,
-complications and other Garmin surfaces remain deferred. Earlier Phase 1 descriptions below
+provider/device controls and BookWave complication publishing are owner-selected planned work
+([provider plan](docs/device-management-plan.md), [future face feed](docs/watchface-state-plan.md)).
+Watch face and Data Field implementation remain deferred. Earlier Phase 1 descriptions below
 describe the persisted model and its original acceptance, not the current transport scope.
 
 
@@ -48,7 +50,9 @@ acceptance remain NOT RUN under [#2](https://github.com/AlexanderWilhelmsenBerg/
 Phase 2 implements the foreground receiver, ordered snapshot/clear acknowledgements, and
 Android bridge integration. Physical acceptance remains pending. [#3](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/3) tracks that integration. See
 [cross-repository dependencies](docs/reconciliation.md) and [Phase 2 test inventory](docs/testing/phase-2-transport.md).
-WatchShelf + Sidecar remain the initial offline-audio path; helper/provider replacement is optional future work.
+The owner selected a separate BookWave Audio Provider using existing WatchShelf Sidecar for device
+downloads/inventory/sessions ([#7](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/7)), and a BookWave Complications feed for a future face
+([#8](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/8)). These are planned, not implemented. Removing Sidecar is not selected.
 
 ## Downloadable development acceptance artifacts
 

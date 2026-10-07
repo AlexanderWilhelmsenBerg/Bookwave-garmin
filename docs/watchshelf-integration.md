@@ -1,23 +1,23 @@
-# WatchShelf coexistence policy
+# WatchShelf Sidecar integration policy
 
-**Classification:** Current repository boundary; future integration candidate. Reconciled 2026-10-07.
+**Classification:** Current owner-selected boundary; runtime integration still planned. **Updated:** 2026-10-07.
 
-Under this repository's agreement, initial BookWave Garmin phases coexist with WatchShelf + WatchShelf
-Sidecar for offline audiobook preparation/download/playback and server progress upload. This documents
-the selected boundary; it is not fresh verification of external WatchShelf capabilities or an installed
-version. No WatchShelf code was copied and no interoperability has been physically accepted here.
+The owner selected a separate BookWave Audio Provider using **existing WatchShelf Sidecar**. Companion
+remains a Device App for PHONE state/controls; the provider owns native offline watch media and actual
+GARMIN events. WatchShelf may coexist during transition; its media cache is not BookWave's inventory.
+The previous optional-provider/evaluation-only rule is superseded for the requested integration.
+Replacing/removing Sidecar remains outside the selected scope.
 
-BookWave Companion currently persists display state only. It neither transfers audio nor executes
-watch-local playback. Android's proposed bridge adds phone snapshots, not a replacement provider/helper.
-WatchShelf-origin progress may later enter reconciliation after reaching Audiobookshelf; the timestamp/
-identity/conflict contract must be established with observed fixtures before claiming that integration.
+Inspection at WatchShelf commit `93ac7507dae1cae1221509cefd97441dab36e955` found no BookWave phone
+receiver or Sidecar watch-inventory/queue/listening-session route. Sidecar login sessions are auth state.
+Phone download selection identifies a server item; Sidecar fetches/transcodes ABS audio rather than
+reading the phone's local bytes. No WatchShelf code has been copied; any reuse retains MIT notices and
+needs provenance review. Do not carry destructive upgrade resets, private logs or normal ABS-key fallback
+into the new provider. Provider credentials/account pairing need their own explicit contract.
 
-Record physical coexistence findings with exact watch/firmware/apps/server versions: standalone offline
-playback, rewind/chapter/resume, disconnect/restart, later server progress, conflicting phone events and
-battery/storage/transfer failures. Preserve legitimate rewinds and do not start playback during sync.
-No coexistence test has run in this reconciliation.
-
-Replacing/extending the Audio Content Provider or removing Sidecar is an optional later decision justified
-by those findings, not an accepted transport/transcoder/hosting design. Review upstream behavior and
-licensing before any dependency or reuse; retain required notices if code is reused. See `../plan.md`
-and [cross-repository status](reconciliation.md).
+[Provider/device plan](device-management-plan.md), [Garmin #7](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/7) and Android
+[#119](https://github.com/AlexanderWilhelmsenBerg/Audiobookshelf-Manager-Claude/issues/119) track the work.
+Record actual phone-free playback, chapter/rewind/restart, queue/resume/storage/battery and sync privacy
+with exact firmware/app/source hashes. No physical interoperability is accepted here. Preserve legitimate
+rewinds and never start playback during reconciliation. The [future face feed](watchface-state-plan.md)
+uses on-watch BookWave Complications; it does not add direct watch-face ABS authentication.
