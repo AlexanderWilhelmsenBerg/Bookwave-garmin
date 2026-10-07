@@ -23,8 +23,24 @@ module TransportProcessor {
         }
 
         if (envelope.type == BookWaveProtocol.TYPE_CLEAR_STATE) {
+            if (envelope.sentAt == null) {
+                return result(
+                    TransportCodec.error(envelope.id, "clear_timestamp_missing"),
+                    false,
+                    false,
+                    false
+                );
+            }
             var store = new SnapshotStore();
-            store.clear();
+            var cleared = store.redact(envelope.sentAt);
+            if (!cleared) {
+                return result(
+                    TransportCodec.error(envelope.id, store.getLastError()),
+                    true,
+                    false,
+                    false
+                );
+            }
             return result(TransportCodec.clearAck(envelope.id), true, false, false);
         }
 

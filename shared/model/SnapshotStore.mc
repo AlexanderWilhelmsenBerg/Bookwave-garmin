@@ -4,6 +4,8 @@ using Toybox.Lang;
 (:background)
 module SnapshotStoreState {
     const STORAGE_KEY = "bookwave.playbackSnapshot.v1";
+    const REDACTION_KEY = "bookwave.playbackRedaction.v1";
+
     const LOAD_NEVER_SYNCED = "never_synced";
     const LOAD_VALID = "valid";
     const LOAD_INVALID = "invalid";
@@ -82,6 +84,12 @@ class SnapshotStore {
             return SnapshotStoreState.REJECTED;
         }
 
+        var redactedAt = getRedactedAt();
+        if (redactedAt != null && snapshot.updatedAt <= redactedAt) {
+            _lastError = "redacted_snapshot";
+            return SnapshotStoreState.REJECTED;
+        }
+
         var current = load();
         if (current != null) {
             if (snapshot.updatedAt < current.updatedAt) {
@@ -104,6 +112,42 @@ class SnapshotStore {
         return SnapshotStoreState.ACCEPTED;
     }
 
+    function getRedactedAt() {
+        var value = Storage.getValue(SnapshotStoreState.REDACTION_KEY);
+        if (SnapshotCodec.isInteger(value) && value > 0) {
+            return value;
+        }
+        return null;
+    }
+
+    function redact(updatedAt) {
+        _lastError = null;
+        if (!SnapshotCodec.isInteger(updatedAt) || updatedAt <= 0) {
+            _lastError = "invalid_redaction_timestamp";
+            return false;
+        }
+
+        var watermarkWritten = true;
+        try {
+            Storage.setValue(SnapshotStoreState.REDACTION_KEY, updatedAt);
+        } catch (ex) {
+            watermarkWritten = false;
+            _lastError = "redaction_watermark_failed";
+        }
+
+        // Privacy still requires immediate visible clearing even if the secondary
+        // watermark write failed. The false result keeps that failure observable.
+        try {
+            Storage.deleteValue(SnapshotStoreState.STORAGE_KEY);
+        } catch (ex) {
+            _lastError = "storage_clear_failed";
+            return false;
+        }
+
+        _loadStatus = SnapshotStoreState.LOAD_NEVER_SYNCED;
+        return watermarkWritten;
+    }
+
     function write(snapshot) {
         try {
             Storage.setValue(SnapshotStoreState.STORAGE_KEY, snapshot.toDictionary());
@@ -115,11 +159,18 @@ class SnapshotStore {
         }
     }
 
+    // Local reset used by tests/simulator setup. Transport privacy uses redact()
+    // so delayed pre-clear messages cannot repopulate private metadata.
     function clear() {
         try {
             Storage.deleteValue(SnapshotStoreState.STORAGE_KEY);
         } catch (ex) {
-            // A missing value or unavailable store already satisfies the privacy intent.
+            // A missing value already satisfies the reset.
+        }
+        try {
+            Storage.deleteValue(SnapshotStoreState.REDACTION_KEY);
+        } catch (ex) {
+            // A missing value already satisfies the reset.
         }
         _loadStatus = SnapshotStoreState.LOAD_NEVER_SYNCED;
         _lastError = null;
