@@ -71,3 +71,8 @@ logged while independent development can progress.
 
 The provider, durable Android device controls/event import and both protected publishers are implemented.
 See [provider-delivery.md](testing/provider-delivery.md) for exact build/test delivery. Runtime policy is recorded in the provider/feed contracts; the tests above remain physical acceptance obligations.
+
+Claimed native sync IDs remain durable through stop/process loss until their own completed/failed
+outcome, and do not consume a newer queued ID. Duplicating a download already covered by matching
+normal-speed cached audio returns stored; mismatched duration or partial coverage cannot claim success.
+Android retries after a fresh full inventory proves an accepted download absent.

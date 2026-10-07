@@ -39,3 +39,13 @@ gestures, selections, privacy and durable state should be automated where hardwa
 [PR10](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/pull/10) is merged as `19cc9a67`; all nine PR checks and main CI37699273330 pass. Provider download artifacts now also retain the adapted engine's MIT license and provenance alongside the PRG/IQ and build identity. The matching [Android PR243](https://github.com/AlexanderWilhelmsenBerg/Audiobookshelf-Manager-Claude/pull/243) has full strict local verification passing: 1024 tasks, all37 Garmin and38 migration tests pass with actual-source generation reversion proof. GitHub records subsequent PR/main CI and delivery status.
 
 Final native RNE reruns stalled in the local launcher; the earlier49 passing tests do not establish final-source acceptance. The additional failed-read safety test is compiled, not executed. All hardware gates remain NOT RUN. Use [the installation guide](../install-for-testing.md) and recorded binary/signing identity before testing.
+
+## Request recovery follow-up
+
+A fresh complete watch inventory that lacks an accepted download now fails that request, allowing a new
+user retry after queue/cache removal. The actual repository test fails before the guard. Native claimed
+sync IDs now persist until an actual completed/failed outcome; interruption remains retryable and an
+older completion cannot remove a newer request. GD04/06/10 must also cover explicit watch deletion,
+provider reinstall and native sync cancellation/process loss. Physical results remain NOT RUN.
+
+Recovery validation: the Android regression fails before the fix, then all 38 Garmin tests and full strict verifyDebug pass (1024 tasks, 3m31s). Native sync-identity and cached-download regressions compile with SDK9.2; final simulator execution and all physical checks remain pending.

@@ -15,5 +15,6 @@ function failedPullNeverAttemptsBlindProgressPush(logger) {
     Test.assert(!sync.succeeded);
     Test.assert(!sync.attemptedPush);
     Test.assert(Progress.dirtyIds().size()>0);
+    Progress.markClean("read-failure",10,10,false);
     return true;
 }

@@ -57,12 +57,12 @@ class SyncDelegate extends Communications.SyncDelegate {
         return (JobStore.list().size() != 0)
             || (deletes().size() != 0)
             || Progress.hasDirty()
-            || (Application.Storage.getValue(Store.FORCE_SYNC) != null);
+            || (Application.Storage.getValue(Store.FORCE_SYNC) != null)
+            || (ProviderSyncRequest.current() != null);
     }
 
     function onStartSync() {
-        mBookwaveRequest = Application.Storage.getValue("bookwave.syncRequest.v1");
-        Application.Storage.deleteValue("bookwave.syncRequest.v1");
+        mBookwaveRequest = ProviderSyncRequest.current();
         // A delegate normally has one run, but resetting here also makes a
         // simulator/manual re-entry deterministic and prevents stale progress
         // or error state from leaking into a later run.
@@ -125,6 +125,7 @@ class SyncDelegate extends Communications.SyncDelegate {
     }
 
     function onProgressDone() {
+        if(!mProgressSync.succeeded && mSyncError==null){mSyncError="Progress sync failed. Retry when online.";}
         // Report a download error (if any) only now - AFTER the progress exchange
         // has had its chance to flush a dirty offline listen. null on a clean sync.
         // Do not clear a useful prior error after a no-op/force-progress sync;
@@ -134,9 +135,9 @@ class SyncDelegate extends Communications.SyncDelegate {
         }
         if (mSyncError == null && mProgressSync.succeeded && Progress.dirtyIds().size() == 0 && JobStore.list().size() == 0) {
             Application.Storage.setValue("bookwave.lastSync.v1", Progress.nowSec());
-            if(mBookwaveRequest!=null){Application.Storage.setValue("bookwave.completedSyncRequest.v1",mBookwaveRequest);}
+            ProviderSyncRequest.complete(mBookwaveRequest,true);
         } else if(mBookwaveRequest!=null) {
-            Application.Storage.setValue("bookwave.failedSyncRequest.v1",mBookwaveRequest);
+            ProviderSyncRequest.complete(mBookwaveRequest,false);
         }
         Communications.notifySyncComplete(mSyncError);
     }
