@@ -43,4 +43,5 @@ if grep -RInE --include='*.mc' \
   fail "Potential credential-bearing field found in Garmin source."
 fi
 
+"${PYTHON:-python3}" -B tools/ci/check_transport_fixtures.py
 echo "Companion repository guardrails PASS"

@@ -5,6 +5,7 @@ module TransportCodec {
         if (!(value instanceof Lang.Dictionary)) { return null; }
         if (!(value["v"] instanceof Lang.Number) || value["v"] != 1) { return null; }
         if (!id(value["id"]) || !(value["t"] instanceof Lang.String)) { return null; }
+        if (["hello", "hello_ack", "snapshot", "snapshot_ack", "state_request", "clear_state", "clear_ack", "error"].indexOf(value["t"]) == -1) { return null; }
         if (value["r"] != null && !id(value["r"])) { return null; }
         if (!SnapshotCodec.isInteger(value["ts"]) || value["ts"] <= 0) { return null; }
         if (!(value["p"] instanceof Lang.Dictionary) || value["p"].size() > 16) { return null; }

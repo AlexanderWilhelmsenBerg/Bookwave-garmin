@@ -2,6 +2,15 @@ using Toybox.Test;
 
 class TransportTests {
     (:test)
+    static function commonGoldenEnvelopeCases(logger) {
+        var cases = TransportFixtures.cases();
+        for (var i = 0; i < cases.size(); i++) {
+            if ((TransportCodec.decode(cases[i]["raw"]) != null) != cases[i]["accepted"]) { return false; }
+        }
+        return true;
+    }
+
+    (:test)
     static function strictEnvelopeTypes(logger) {
         var raw = envelope("snapshot", "message-1", 1);
         if (TransportCodec.decode(raw) == null) { return false; }
