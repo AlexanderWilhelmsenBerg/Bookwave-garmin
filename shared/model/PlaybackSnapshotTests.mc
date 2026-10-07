@@ -106,6 +106,183 @@ class PlaybackSnapshotTests {
         return result;
     }
 
+    (:test)
+    static function envelopeParsesCompatibleMessage(logger) {
+        var envelope = TransportCodec.decode(TransportCodec.stateRequest());
+        return envelope != null
+            && envelope.protocolMajor == 1
+            && envelope.type == BookWaveProtocol.TYPE_STATE_REQUEST;
+    }
+
+    (:test)
+    static function incompatibleEnvelopeRejected(logger) {
+        var value = TransportCodec.stateRequest();
+        value["v"] = 2;
+        return TransportCodec.decode(value) == null
+            && TransportCodec.getLastError() == "unsupported_protocol_major";
+    }
+
+    (:test)
+    static function unknownMessageTypeRejected(logger) {
+        var value = TransportCodec.stateRequest();
+        value["t"] = "future_message";
+        return TransportCodec.decode(value) == null
+            && TransportCodec.getLastError() == "unsupported_message_type";
+    }
+
+    (:test)
+    static function transportSnapshotUsesExistingValidationAndPersistence(logger) {
+        var store = new SnapshotStore();
+        store.clear();
+
+        var result = TransportProcessor.process(
+            TransportCodec.envelope(
+                BookWaveProtocol.TYPE_SNAPSHOT,
+                PlaybackFixtures.playing(),
+                null
+            )
+        );
+        var restored = store.load();
+        var reply = TransportCodec.decode(result[TransportProcessor.RESULT_REPLY]);
+
+        var passed = result[TransportProcessor.RESULT_CHANGED] == true
+            && restored != null
+            && restored.bookId == "book-dcc-1"
+            && reply != null
+            && reply.type == BookWaveProtocol.TYPE_SNAPSHOT_ACK
+            && reply.payload["accepted"] == true;
+
+        store.clear();
+        return passed;
+    }
+
+    (:test)
+    static function malformedEnvelopeRetainsLastGood(logger) {
+        var store = new SnapshotStore();
+        store.clear();
+        if (!store.saveIfValid(PlaybackFixtures.playing())) {
+            return false;
+        }
+
+        TransportProcessor.process({"broken" => true});
+        var restored = store.load();
+        var passed = restored != null && restored.updatedAt == PlaybackFixtures.playing()["updatedAt"];
+
+        store.clear();
+        return passed;
+    }
+
+    (:test)
+    static function staleSnapshotRejected(logger) {
+        var store = new SnapshotStore();
+        store.clear();
+        if (!store.saveIfValid(PlaybackFixtures.playing())) {
+            return false;
+        }
+
+        var stale = PlaybackFixtures.playing();
+        stale["updatedAt"] = stale["updatedAt"] - 1000l;
+        stale["positionMs"] = stale["positionMs"] - 1000l;
+
+        var result = TransportProcessor.process(
+            TransportCodec.envelope(BookWaveProtocol.TYPE_SNAPSHOT, stale, null)
+        );
+        var restored = store.load();
+        var reply = TransportCodec.decode(result[TransportProcessor.RESULT_REPLY]);
+
+        var passed = result[TransportProcessor.RESULT_CHANGED] == false
+            && restored.positionMs == PlaybackFixtures.playing()["positionMs"]
+            && reply.payload["accepted"] == false
+            && reply.payload["reason"] == "stale_snapshot";
+
+        store.clear();
+        return passed;
+    }
+
+    (:test)
+    static function exactReplayIsIdempotent(logger) {
+        var store = new SnapshotStore();
+        store.clear();
+        if (!store.saveIfValid(PlaybackFixtures.playing())) {
+            return false;
+        }
+
+        var result = TransportProcessor.process(
+            TransportCodec.envelope(
+                BookWaveProtocol.TYPE_SNAPSHOT,
+                PlaybackFixtures.playing(),
+                null
+            )
+        );
+        var reply = TransportCodec.decode(result[TransportProcessor.RESULT_REPLY]);
+        var restored = store.load();
+
+        var passed = result[TransportProcessor.RESULT_CHANGED] == false
+            && reply.payload["accepted"] == true
+            && reply.payload["reason"] == "replay"
+            && restored.positionMs == PlaybackFixtures.playing()["positionMs"];
+
+        store.clear();
+        return passed;
+    }
+
+    (:test)
+    static function snapshotAckCarriesCorrelationAndNoSnapshotEcho(logger) {
+        var ack = TransportCodec.snapshotAck("phone-42", true, 1234l, null);
+        var parsed = TransportCodec.decode(ack);
+        return parsed != null
+            && parsed.replyTo == "phone-42"
+            && parsed.payload["accepted"] == true
+            && parsed.payload["updatedAt"] == 1234l
+            && parsed.payload["bookId"] == null;
+    }
+
+    (:test)
+    static function stateRequestGeneration(logger) {
+        var parsed = TransportCodec.decode(TransportCodec.stateRequest());
+        return parsed != null
+            && parsed.type == BookWaveProtocol.TYPE_STATE_REQUEST
+            && parsed.payload != null;
+    }
+
+    (:test)
+    static function clearStateIsIdempotent(logger) {
+        var store = new SnapshotStore();
+        store.clear();
+        if (!store.saveIfValid(PlaybackFixtures.playing())) {
+            return false;
+        }
+
+        var clear = TransportCodec.envelope(BookWaveProtocol.TYPE_CLEAR_STATE, {}, null);
+        TransportProcessor.process(clear);
+        TransportProcessor.process(clear);
+        var restored = store.load();
+
+        store.clear();
+        return restored == null;
+    }
+
+    (:test)
+    static function rejectedTransportRetainsLastGood(logger) {
+        var store = new SnapshotStore();
+        store.clear();
+        if (!store.saveIfValid(PlaybackFixtures.playing())) {
+            return false;
+        }
+
+        var bad = PlaybackFixtures.playing();
+        bad["positionMs"] = -10;
+        TransportProcessor.process(
+            TransportCodec.envelope(BookWaveProtocol.TYPE_SNAPSHOT, bad, null)
+        );
+        var restored = store.load();
+
+        var passed = restored != null
+            && restored.positionMs == PlaybackFixtures.playing()["positionMs"];
+        store.clear();
+        return passed;
+    }
+
     // Simulator-only fixture seeding paths. Test code and fixtures are excluded
     // from release builds and there is no production demo-data switch.
     (:test)

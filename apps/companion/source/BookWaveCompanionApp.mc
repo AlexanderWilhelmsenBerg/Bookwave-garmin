@@ -4,6 +4,7 @@ using Toybox.Communications;
 using Toybox.System;
 using Toybox.WatchUi as WatchUi;
 
+(:background)
 module CompanionTransportState {
     const WAITING = "waiting";
     const CONNECTED = "connected";
@@ -43,14 +44,15 @@ class BookWaveCompanionApp extends Application.AppBase {
     function onStop(state) {
         _foregroundActive = false;
         Communications.registerForPhoneAppMessages(null);
-        Communications.registerForPhoneAppMessageErrors(null);
+        if (Communications has :registerForPhoneAppMessageErrors) {
+            Communications.registerForPhoneAppMessageErrors(null);
+        }
     }
 
     function getInitialView() {
         return [new CompanionView(self)];
     }
 
-    (:background)
     function getServiceDelegate() {
         return [new BookWaveServiceDelegate()];
     }
@@ -154,7 +156,9 @@ class BookWaveCompanionApp extends Application.AppBase {
 
     function registerForegroundTransport() {
         Communications.registerForPhoneAppMessages(method(:onPhoneAppMessage));
-        Communications.registerForPhoneAppMessageErrors(method(:onPhoneAppMessageError));
+        if (Communications has :registerForPhoneAppMessageErrors) {
+            Communications.registerForPhoneAppMessageErrors(method(:onPhoneAppMessageError));
+        }
     }
 
     function send(payload) {
