@@ -5,7 +5,7 @@ BookWave has two separate apps: **BookWave Audio** is a music provider that down
 These are development builds, not Connect IQ Store releases. Physical acceptance is still pending.
 
 1. Download the artifacts from the successful [Garmin Verification run](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/actions/workflows/garmin-verification.yml)
-   for the source revision recorded in the test report. Choose `audio-provider` and optionally `companion`.
+   for the source revision recorded in the test report. Choose `audio-provider` and optionally `companion`. Keep the included MIT license/provenance with the downloaded package.
    Match `fenix843mm` to the 43 mm fēnix 8 or `fenix847mm` to the 47 mm model. Do not use either binary on
    a different model. The `.iq` package is for store submission; sideload the target-specific `.prg`.
 2. Connect the watch by USB and choose its file-transfer/MTP mode if prompted. Open the watch in Explorer.

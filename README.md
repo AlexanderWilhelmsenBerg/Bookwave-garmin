@@ -64,3 +64,9 @@ CI public-key fingerprint. Only out/ is uploaded; private developer keys are exc
 development builds signed with fresh temporary CI keys, not an owner-signed Connect IQ Store release.
 Sideload/run acceptance against the matching target and record its identity; preserve the app/storage
 boundary when changing development signing identities. No simulator or physical PASS follows upload.
+
+## Provider delivery evidence — 2026-10-08
+
+[PR10](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/pull/10) is merged as `19cc9a67`; all nine PR checks and main CI37699273330 pass. Provider download artifacts now also retain the adapted engine's MIT license and provenance alongside the PRG/IQ and build identity. The matching [Android PR243](https://github.com/AlexanderWilhelmsenBerg/Audiobookshelf-Manager-Claude/pull/243) has full strict local verification passing: 1024 tasks, all37 Garmin and38 migration tests pass with actual-source generation reversion proof. GitHub records subsequent PR/main CI and delivery status.
+
+Final native RNE reruns stalled in the local launcher; the earlier49 passing tests do not establish final-source acceptance. The additional failed-read safety test is compiled, not executed. All hardware gates remain NOT RUN. Use [the installation guide](docs/install-for-testing.md) and recorded binary/signing identity before testing.

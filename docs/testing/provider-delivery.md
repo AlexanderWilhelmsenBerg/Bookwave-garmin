@@ -9,7 +9,7 @@ one SDK owner with separate app channels, inline Playback Devices controls/dialo
 PHONE/GARMIN publishers. No phone-byte transfer, remote autoplay, destructive upgrade reset, normal ABS
 token fallback or watch face is introduced. Existing owner WIP in the primary checkout is untouched.
 
-Local focused Android verification passes all37 Garmin tests, including rendered inline controls, durable request deduplication, original-time import-before-ACK, failed-import/no-ACK, privacy and shared golden responses. The A-B-A guard test fails when the actual generation protection is removed; the fix is restored. Both supported targets, test-enabled compilation and IQ export pass locally for both apps with SDK9.2 gradual checking level1. Guardrails/Sidecar/transport fixture generation pass. An earlier native RNE execution passed49 tests; final reruns stalled in the simulator launcher and are not recorded as passes. The new failed-read safety test is compiled, with execution still pending. Full strict gate and exact PR/CI/artifact identity will be added after verification. Earlier failures
+Local focused Android verification passes all37 Garmin tests, including rendered inline controls, durable request deduplication, original-time import-before-ACK, failed-import/no-ACK, privacy and shared golden responses. The A-B-A guard test fails when the actual generation protection is removed; the fix is restored. Both supported targets, test-enabled compilation and IQ export pass locally for both apps with SDK9.2 gradual checking level1. Guardrails/Sidecar/transport fixture generation pass. An earlier native RNE execution passed49 tests; final reruns stalled in the simulator launcher and are not recorded as passes. The new failed-read safety test is compiled, with execution still pending. Full strict Android verification passes locally; GitHub records exact PR/main CI and delivery identity. Earlier failures
 (gradual-type errors, string complication numeric ranges, strict formatting/compiler issues) were found
 before delivery; their logs are retained outside source. No phone or physical watch test was run here.
 GD01–10, GF01–07, existing G01/G02 and Q01/A08 remain NOT RUN.
@@ -33,3 +33,9 @@ GD01–10, GF01–07, existing G01/G02 and Q01/A08 remain NOT RUN.
 Record watch model/firmware, GCM and Sidecar versions, source revisions, APK/PRG hashes and developer
 public-key fingerprint. UI appearance/200% localized long titles requires visual judgment; functional
 gestures, selections, privacy and durable state should be automated where hardware tools permit.
+
+## Provider delivery evidence — 2026-10-08
+
+[PR10](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/pull/10) is merged as `19cc9a67`; all nine PR checks and main CI37699273330 pass. Provider download artifacts now also retain the adapted engine's MIT license and provenance alongside the PRG/IQ and build identity. The matching [Android PR243](https://github.com/AlexanderWilhelmsenBerg/Audiobookshelf-Manager-Claude/pull/243) has full strict local verification passing: 1024 tasks, all37 Garmin and38 migration tests pass with actual-source generation reversion proof. GitHub records subsequent PR/main CI and delivery status.
+
+Final native RNE reruns stalled in the local launcher; the earlier49 passing tests do not establish final-source acceptance. The additional failed-read safety test is compiled, not executed. All hardware gates remain NOT RUN. Use [the installation guide](../install-for-testing.md) and recorded binary/signing identity before testing.
