@@ -77,6 +77,9 @@ module TransportProcessor {
         var store = new SnapshotStore();
         var status = store.acceptTransportCandidate(envelope.payload);
         if (status == SnapshotStoreState.REJECTED) {
+            // load() intentionally resets the store's diagnostic state, so preserve
+            // the transport rejection before reading the last-good snapshot.
+            var rejectionReason = store.getLastError();
             var current = store.load();
             var currentUpdatedAt = current == null ? null : current.updatedAt;
             return result(
@@ -84,7 +87,7 @@ module TransportProcessor {
                     envelope.id,
                     false,
                     currentUpdatedAt,
-                    store.getLastError()
+                    rejectionReason
                 ),
                 false,
                 false,
