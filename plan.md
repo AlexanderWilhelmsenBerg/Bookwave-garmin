@@ -1,4 +1,7 @@
-# BookWave Garmin — Initial Plan
+# BookWave Garmin — Delivery Plan
+
+**Reconciled:** 2026-10-07 against Garmin main `d8de6fb8` and Android bridge candidate `6239a148`.
+[Cross-repository boundaries and dependencies](docs/reconciliation.md).
 
 ## 1. Goal
 
@@ -247,7 +250,7 @@ Reconciliation must never start playback.
 
 ### Implementation status — 2026-10-06
 
-Implemented on `mcp/phase-1-companion-shell`:
+Merged in [PR #1](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/pull/1), main `d8de6fb8`:
 
 - Companion Device App project and fēnix 8 AMOLED targets;
 - shared PlaybackSnapshot model and major-version validation;
@@ -257,7 +260,7 @@ Implemented on `mcp/phase-1-companion-shell`:
 - Run No Evil unit-test coverage for core validation/format/persistence behavior;
 - Phase 1 architecture, protocol and test/sideload documentation.
 
-Acceptance is **not complete** until the code is compiled/run with the Connect IQ SDK and the physical fēnix 8 checklist in `docs/testing/phase-1-companion.md` is executed. Phone transport remains Phase 2.
+PR37522590573 and main37534424183 PASS: guardrails, both target compilations, test-enabled compilation and package export. **Run No Evil execution, simulator and physical acceptance remain NOT RUN**, tracked by [#2](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/2) and `docs/testing/phase-1-companion.md`. Test compilation is not test execution. Phone transport remains Phase 2.
 
 ### Scope
 
@@ -284,8 +287,8 @@ Chapter 31
 45.34%
 35:13:43 / 72:43:01
 
-Phone connected
-Synced 12 sec ago
+PLAYING • STORED SNAPSHOT
+Waiting for phone
 ```
 
 ### Acceptance
@@ -312,7 +315,7 @@ Implement Garmin-side message transport:
 
 ### Android dependency
 
-Main BookWave must add the Connect IQ Mobile SDK bridge and translate BookWave playback state into the shared wire contract.
+Android candidate `mcp/garmin-phase-2-mobile-bridge` at `6239a148` already contains SDK/codec/projection/privacy/lifecycle code and eight test methods, but is unmerged and has no recorded head CI result at this snapshot. Review it rather than starting a duplicate bridge. Garmin main has no transport receiver/permissions/ack counterpart. [#3](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/3) and [transport test inventory](docs/testing/phase-2-transport.md) track the integration. The wire contract remains proposed until both sides agree and verify it.
 
 This Android work belongs in the main BookWave repository.
 
@@ -675,20 +678,19 @@ This milestone gates the BookWave Now Playing complication and watch face.
 
 # 13. Current status
 
-As of initial repository planning:
+As of the 2026-10-07 reconciliation:
 
-- [x] Repository created.
-- [x] Initial `AGENTS.md` drafted.
-- [x] Initial `plan.md` drafted.
-- [ ] Repository/toolchain foundation.
-- [x] Companion application shell implemented on Phase 1 branch (build/simulator/physical acceptance still pending).
-- [ ] Shared wire protocol (Phase 1 conceptual/persisted contract documented; Phase 2 transport encoding intentionally undecided).
-- [ ] Android Connect IQ bridge.
-- [ ] Physical fēnix 8 handshake.
-- [ ] Playback commands.
-- [ ] Reconciliation / Force Sync.
-- [ ] BookWave Now Playing complication/state publisher.
-- [ ] Watch face.
-- [ ] Running Data Field.
-- [ ] WatchShelf coexistence evaluation.
-- [ ] Optional Audio Provider decision.
+- [x] Repository, agreement, build instructions, two AMOLED targets and CI foundation.
+- [x] Companion shell and validated last-known snapshot persistence merged in PR #1.
+- [x] Target compilation, test-enabled compilation and package export PASS in PR/main CI.
+- [ ] Run No Evil execution and simulator acceptance ([#2](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/2)).
+- [ ] Physical Phase 1 fēnix8 acceptance ([#2](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/2)).
+- [ ] Shared wire protocol/transport: Android candidate exists; Garmin counterpart absent ([#3](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/3)).
+- [ ] Android bridge review/merge and physical handshake.
+- [ ] Playback commands through Android's action contract.
+- [ ] Reconciliation / Android Settings Force sync.
+- [ ] Complication/state publisher, then watch face, then Running Data Field.
+- [ ] Physical WatchShelf coexistence evaluation; optional Audio Provider decision remains deferred.
+
+No phase is accepted by compilation alone. Android reliability remains its own primary roadmap lane;
+this reconciliation does not begin new runtime implementation or a physical test campaign.

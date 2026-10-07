@@ -142,3 +142,13 @@ Phase 2 must decide and document:
 - maximum transport payload size.
 
 Those decisions are not preempted here.
+
+
+## Cross-repository proposal — 2026-10-07
+
+Android candidate `6239a148` proposes a major1 dictionary envelope (`v`, `t`, `id`, optional `r`,
+optional `ts`, `p`) and hello/hello_ack, snapshot/snapshot_ack, state_request, clear_state/clear_ack,
+error messages. This is candidate inventory, **not** a finalized/released wire contract or Garmin receiver.
+The bounded persisted fields above remain authoritative for Phase 1. [Reconciliation](reconciliation.md)
+and [#3](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/3) track common fixtures, ordering/correlation/ack/privacy rules and
+integer/timestamp precision before interoperability can be claimed. See [planned tests](testing/phase-2-transport.md).
