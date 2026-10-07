@@ -1,6 +1,14 @@
 # BookWave Garmin — Delivery Plan
 
-**Reconciled:** 2026-10-07 against Garmin main `d8de6fb8` and Android bridge candidate `6239a148`.
+**Current Phase 2 implementation (2026-10-07):** foreground phone transport, negotiated ordered
+snapshot delivery, durable clear/snapshot acknowledgements and bounded reconnect handling are
+implemented. See [the shared wire contract](docs/transport-contract.md). Build/test-compilation and physical acceptance
+are recorded separately in the Phase 2 inventory. Commands, reconciliation/Force sync,
+complications and other Garmin surfaces remain deferred. Earlier Phase 1 descriptions below
+describe the persisted model and its original acceptance, not the current transport scope.
+
+
+**Updated:** 2026-10-07 for Phase 2 PR #5 and the matching Android bridge integration.
 [Cross-repository boundaries and dependencies](docs/reconciliation.md).
 
 ## 1. Goal
@@ -315,7 +323,16 @@ Implement Garmin-side message transport:
 
 ### Android dependency
 
-Android candidate `mcp/garmin-phase-2-mobile-bridge` at `6239a148` already contains SDK/codec/projection/privacy/lifecycle code and eight test methods, but is unmerged and has no recorded head CI result at this snapshot. Review it rather than starting a duplicate bridge. Garmin main has no transport receiver/permissions/ack counterpart. [#3](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/3) and [transport test inventory](docs/testing/phase-2-transport.md) track the integration. The wire contract remains proposed until both sides agree and verify it.
+**Implemented in [PR #5](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/pull/5):** foreground
+Communications receiver, shared ordered-state contract, nonce handshake, sequence/duplicate validation,
+durable snapshot/clear acknowledgements, redaction tombstone and truthful recent-state/stored UI.
+Android incorporates candidate6239a148 with captured queue ownership, privacy/generation guards,
+bounded paused-state retries and lifecycle callback rejection. Both repositories carry the
+[same wire contract](docs/transport-contract.md). PR CI37630137658 passes guardrails, both supported
+target builds, test-method compilation and package export. Run No Evil execution and physical
+acceptance remain NOT RUN under [#3](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/3)
+and [G-02-01–10](docs/testing/phase-2-transport.md). Phase 2 implementation does not accept Milestone 1
+hardware gates or authorize commands/reconciliation/other surfaces.
 
 This Android work belongs in the main BookWave repository.
 
@@ -685,7 +702,8 @@ As of the 2026-10-07 reconciliation:
 - [x] Target compilation, test-enabled compilation and package export PASS in PR/main CI.
 - [ ] Run No Evil execution and simulator acceptance ([#2](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/2)).
 - [ ] Physical Phase 1 fēnix8 acceptance ([#2](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/2)).
-- [ ] Shared wire protocol/transport: Android candidate exists; Garmin counterpart absent ([#3](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/3)).
+- [x] Shared wire protocol/foreground transport implemented with Android counterpart (PR #5).
+- [ ] Executed simulator and physical interoperability acceptance ([#3](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/3)).
 - [ ] Android bridge review/merge and physical handshake.
 - [ ] Playback commands through Android's action contract.
 - [ ] Reconciliation / Android Settings Force sync.
