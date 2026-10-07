@@ -203,7 +203,9 @@ class ProviderDownloadRequest extends BookMenuDelegate {
             if(stored!=null){
                 if(ProviderControl.failedBook(command["b"])){Application.Storage.deleteValue("bookwave.failedBook.v1");}
                 ProviderControl.reply(command,"result",{"ok"=>true,"state"=>"queued"});}
-            else {ProviderControl.error(command,"QUEUE_REJECTED");}
+            else if(ProviderDownloads.storedFor(command["b"],data)) {
+                ProviderControl.reply(command,"result",{"ok"=>true,"state"=>"stored"});
+            } else {ProviderControl.error(command,"QUEUE_REJECTED");}
         } catch(ex){ProviderControl.error(command,"STORE_FAILED");}
     }
 }
