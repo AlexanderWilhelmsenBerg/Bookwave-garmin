@@ -7,8 +7,8 @@ using Toybox.Timer;
 class PhoneSendListener extends Communications.ConnectionListener {
     var _owner;
     function initialize(owner) { ConnectionListener.initialize(); _owner = owner; }
-    function onComplete() { } // BLE completion is not confirmation of accepted state.
-    function onError() { _owner.sendFailed(); }
+    function onComplete() as Void { } // BLE completion is not confirmation of accepted state.
+    function onError() as Void { _owner.sendFailed(); }
 }
 
 class PhoneTransport {
@@ -47,7 +47,7 @@ class PhoneTransport {
         _lastReceived = null;
     }
 
-    function heartbeat() {
+    function heartbeat() as Void {
         if (!_running) { return; }
         if (_lastReceived == null || System.getTimer() - _lastReceived > 60000) {
             _owner.transportStatus("Stored; waiting for phone");
@@ -63,7 +63,7 @@ class PhoneTransport {
         send(hello);
     }
 
-    function receive(message) {
+    function receive(message as Communications.PhoneAppMessage) as Void {
         if (!_running) { return; }
         var value = TransportCodec.decode(message.data);
         if (value == null) { return; }
