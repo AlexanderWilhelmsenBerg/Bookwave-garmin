@@ -60,26 +60,28 @@ module TransportCodec {
     }
 
     function envelope(type, payload, replyTo) {
-        return {
+        var value = {
             "v" => BookWaveProtocol.PROTOCOL_MAJOR,
             "t" => type,
             "id" => nextId(type),
-            "r" => replyTo,
             "ts" => Time.now().value().toLong() * 1000l,
             "p" => payload
         };
+        if (replyTo != null) {
+            value["r"] = replyTo;
+        }
+        return value;
     }
 
     function hello(latestUpdatedAt) {
-        return envelope(
-            BookWaveProtocol.TYPE_HELLO,
-            {
-                "majors" => [BookWaveProtocol.PROTOCOL_MAJOR],
-                "caps" => BookWaveProtocol.capabilities(),
-                "latestUpdatedAt" => latestUpdatedAt
-            },
-            null
-        );
+        var payload = {
+            "majors" => [BookWaveProtocol.PROTOCOL_MAJOR],
+            "caps" => BookWaveProtocol.capabilities()
+        };
+        if (latestUpdatedAt != null) {
+            payload["latestUpdatedAt"] = latestUpdatedAt;
+        }
+        return envelope(BookWaveProtocol.TYPE_HELLO, payload, null);
     }
 
     function stateRequest() {
@@ -87,15 +89,14 @@ module TransportCodec {
     }
 
     function snapshotAck(replyTo, accepted, updatedAt, reason) {
-        return envelope(
-            BookWaveProtocol.TYPE_SNAPSHOT_ACK,
-            {
-                "accepted" => accepted,
-                "updatedAt" => updatedAt,
-                "reason" => boundedReason(reason)
-            },
-            replyTo
-        );
+        var payload = {"accepted" => accepted};
+        if (updatedAt != null) {
+            payload["updatedAt"] = updatedAt;
+        }
+        if (reason != null) {
+            payload["reason"] = boundedReason(reason);
+        }
+        return envelope(BookWaveProtocol.TYPE_SNAPSHOT_ACK, payload, replyTo);
     }
 
     function clearAck(replyTo) {

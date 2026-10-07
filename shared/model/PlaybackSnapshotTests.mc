@@ -283,6 +283,56 @@ class PlaybackSnapshotTests {
         return passed;
     }
 
+    (:test)
+    static function privacyClearBlocksDelayedPreClearSnapshot(logger) {
+        var store = new SnapshotStore();
+        store.clear();
+
+        var clear = TransportCodec.envelope(BookWaveProtocol.TYPE_CLEAR_STATE, {}, null);
+        var clearAt = clear["ts"];
+        TransportProcessor.process(clear);
+
+        var delayed = PlaybackFixtures.playing();
+        delayed["updatedAt"] = clearAt - 1l;
+        var result = TransportProcessor.process(
+            TransportCodec.envelope(BookWaveProtocol.TYPE_SNAPSHOT, delayed, null)
+        );
+        var reply = TransportCodec.decode(result[TransportProcessor.RESULT_REPLY]);
+        var restored = store.load();
+
+        var passed = restored == null
+            && reply != null
+            && reply.payload["accepted"] == false
+            && reply.payload["reason"] == "redacted_snapshot";
+
+        store.clear();
+        return passed;
+    }
+
+    (:test)
+    static function postClearNewerSnapshotMayRepublish(logger) {
+        var store = new SnapshotStore();
+        store.clear();
+
+        var clear = TransportCodec.envelope(BookWaveProtocol.TYPE_CLEAR_STATE, {}, null);
+        var clearAt = clear["ts"];
+        TransportProcessor.process(clear);
+
+        var fresh = PlaybackFixtures.playing();
+        fresh["updatedAt"] = clearAt + 1l;
+        var result = TransportProcessor.process(
+            TransportCodec.envelope(BookWaveProtocol.TYPE_SNAPSHOT, fresh, null)
+        );
+        var restored = store.load();
+
+        var passed = result[TransportProcessor.RESULT_CHANGED] == true
+            && restored != null
+            && restored.updatedAt == clearAt + 1l;
+
+        store.clear();
+        return passed;
+    }
+
     // Simulator-only fixture seeding paths. Test code and fixtures are excluded
     // from release builds and there is no production demo-data switch.
     (:test)
