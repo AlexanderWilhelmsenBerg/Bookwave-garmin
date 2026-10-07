@@ -1,18 +1,18 @@
 # BookWave Garmin
 
-**Current Phase 2 implementation (2026-10-07):** foreground phone transport, negotiated ordered
-snapshot delivery, durable clear/snapshot acknowledgements and bounded reconnect handling are
-implemented. See [the shared wire contract](docs/transport-contract.md). Build/test-compilation and physical acceptance
-are recorded separately in the Phase 2 inventory. Commands, reconciliation/Force sync,
-provider/device controls and BookWave complication publishing are owner-selected planned work
-([provider plan](docs/device-management-plan.md), [future face feed](docs/watchface-state-plan.md)).
-Watch face and Data Field implementation remain deferred. Earlier Phase 1 descriptions below
-describe the persisted model and its original acceptance, not the current transport scope.
+**Provider/control/feed implementation — 2026-10-08:** BookWave Audio is a separate native
+Audio Content Provider using existing WatchShelf Sidecar. Android now owns Room-backed device controls,
+durable requests, reported inventory and imported original listening events. Companion PHONE and
+provider GARMIN complication publishers are implemented. Watch face and Data Field remain deferred.
+See the [provider contract](docs/provider-contract.md), [feed contract](docs/feed-contract.md),
+[installation guide](docs/install-for-testing.md) and [delivery/test record](docs/testing/provider-delivery.md).
+Physical GD/GF and prior Companion acceptance remain pending.
+
 
 
 Garmin Connect IQ applications for BookWave.
 
-Phase 1 is Companion-first: a normal Connect IQ Device App that owns Garmin-side playback snapshot validation, persistence and truthful disconnected-state display. Phase 2 adds foreground phone transport; playback commands, watch face, Running Data Field and Audio Provider remain later phases.
+Phase 1 is Companion-first: a normal Connect IQ Device App that owns Garmin-side playback snapshot validation, persistence and truthful disconnected-state display. Phase 2 adds foreground phone transport; phone playback commands, watch face and Running Data Field remain later phases. The separate Audio Provider and publishers are implemented.
 
 ## Current target
 
@@ -25,6 +25,8 @@ Phase 1 is Companion-first: a normal Connect IQ Device App that owns Garmin-side
 
 ```text
 apps/companion/       Connect IQ Device App
+apps/audio-provider/  native music provider, Sidecar downloads and event journal
+shared/feed/          protected Complications projection
 shared/model/         playback state, persistence, formatting
 shared/protocol/      versioning and validation
 shared/test-fixtures/ debug/test-only deterministic fixtures
@@ -45,14 +47,14 @@ No Android BookWave changes are made in this repository.
 ## Delivery snapshot — 2026-10-07
 
 Phase 1 is merged in [PR #1](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/pull/1). PR and main verification pass both supported target
-builds, test-enabled compilation and export. Run No Evil **execution**, simulator and physical fēnix8
-acceptance remain NOT RUN under [#2](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/2).
+builds, test-enabled compilation and export. Current Run No Evil execution is recorded in the provider delivery report. Final reruns remain pending after a launcher stall. Physical fēnix8
+acceptance remains NOT RUN under [#2](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/2).
 Phase 2 implements the foreground receiver, ordered snapshot/clear acknowledgements, and
 Android bridge integration. Physical acceptance remains pending. [#3](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/3) tracks that integration. See
 [cross-repository dependencies](docs/reconciliation.md) and [Phase 2 test inventory](docs/testing/phase-2-transport.md).
 The owner selected a separate BookWave Audio Provider using existing WatchShelf Sidecar for device
 downloads/inventory/sessions ([#7](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/7)), and a BookWave Complications feed for a future face
-([#8](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/8)). These are planned, not implemented. Removing Sidecar is not selected.
+([#8](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/8)). Provider and feed source are implemented; hardware acceptance remains pending. Removing Sidecar is not selected.
 
 ## Downloadable development acceptance artifacts
 

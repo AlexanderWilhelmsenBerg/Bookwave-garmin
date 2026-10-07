@@ -1,13 +1,13 @@
 # BookWave Garmin Architecture
 
-**Current Phase 2 implementation (2026-10-07):** foreground phone transport, negotiated ordered
-snapshot delivery, durable clear/snapshot acknowledgements and bounded reconnect handling are
-implemented. See [the shared wire contract](transport-contract.md). Build/test-compilation and physical acceptance
-are recorded separately in the Phase 2 inventory. Commands, reconciliation/Force sync,
-provider/device controls and BookWave complication publishing are owner-selected planned work
-([provider plan](device-management-plan.md), [future face feed](watchface-state-plan.md)).
-Watch face and Data Field implementation remain deferred. Earlier Phase 1 descriptions below
-describe the persisted model and its original acceptance, not the current transport scope.
+**Provider/control/feed implementation — 2026-10-08:** BookWave Audio is a separate native
+Audio Content Provider using existing WatchShelf Sidecar. Android now owns Room-backed device controls,
+durable requests, reported inventory and imported original listening events. Companion PHONE and
+provider GARMIN complication publishers are implemented. Watch face and Data Field remain deferred.
+See the [provider contract](provider-contract.md), [feed contract](feed-contract.md),
+[installation guide](install-for-testing.md) and [delivery/test record](testing/provider-delivery.md).
+Physical GD/GF and prior Companion acceptance remain pending.
+
 
 
 ## Repository boundary
@@ -22,7 +22,7 @@ Future applications belong in this repository but are deliberately not implement
 
 - **BookWave Watch Face** — presentation-only surface for the current BookWave state.
 - **BookWave Running Data Field** — activity surface combining BookWave state with Garmin activity metrics.
-- **BookWave Audio Provider** — selected separate Audio Content Provider using existing WatchShelf Sidecar; implementation pending.
+- **BookWave Audio Provider** — selected separate Audio Content Provider using existing WatchShelf Sidecar; implementation present, hardware acceptance pending.
 
 Each future application will have its own manifest, application id and build artifact. Shared playback/protocol concepts live below `shared/` and must not depend on Companion UI classes.
 
@@ -57,9 +57,8 @@ No Android BookWave code is implemented in this repository.
 
 WatchShelf remains the Garmin offline-audiobook engine during the initial BookWave Garmin phases. It owns Garmin-native audiobook browsing/download/offline playback and progress upload through its Sidecar.
 
-BookWave Companion remains a display/control app. The owner's selected separate Audio Provider will
-own watch cache/queue/playback and actual GARMIN events, using existing Sidecar. Neither app receives
-normal ABS credentials through the Companion protocol. [Current provider/account boundary](device-management-plan.md)
+BookWave Companion remains a display/control app. The owner's selected separate Audio Provider owns watch cache/queue/playback and actual GARMIN events, using existing Sidecar. Neither app receives
+normal ABS credentials through the Companion protocol. Provider setup authenticates directly to Sidecar with its opaque UUID session. [Current provider/account boundary](device-management-plan.md)
 and [future face publication](watchface-state-plan.md) supersede the older optional-provider deferral.
 
 ## Current physical layout

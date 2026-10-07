@@ -1,13 +1,13 @@
 # BookWave Phone ↔ Watch Protocol
 
-**Current Phase 2 implementation (2026-10-07):** foreground phone transport, negotiated ordered
-snapshot delivery, durable clear/snapshot acknowledgements and bounded reconnect handling are
-implemented. See [the shared wire contract](transport-contract.md). Build/test-compilation and physical acceptance
-are recorded separately in the Phase 2 inventory. Commands, reconciliation/Force sync,
-provider/device controls and BookWave complication publishing are selected planned work
-([provider plan](device-management-plan.md), [future face feed](watchface-state-plan.md)).
-Watch face and Data Field implementation remain deferred. Earlier Phase 1 descriptions below
-describe the persisted model and its original acceptance, not the current transport scope.
+**Provider/control/feed implementation — 2026-10-08:** BookWave Audio is a separate native
+Audio Content Provider using existing WatchShelf Sidecar. Android now owns Room-backed device controls,
+durable requests, reported inventory and imported original listening events. Companion PHONE and
+provider GARMIN complication publishers are implemented. Watch face and Data Field remain deferred.
+See the [provider contract](provider-contract.md), [feed contract](feed-contract.md),
+[installation guide](install-for-testing.md) and [delivery/test record](testing/provider-delivery.md).
+Physical GD/GF and prior Companion acceptance remain pending.
+
 
 
 ## Persisted model status

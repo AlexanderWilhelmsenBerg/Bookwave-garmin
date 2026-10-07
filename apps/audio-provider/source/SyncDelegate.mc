@@ -1,0 +1,405 @@
+// Derived from WatchShelf, Copyright (c) 2026 Christian Brooker.
+// MIT license: ../third-party/WATCHSHELF-LICENSE.txt; source pin documented there.
+using Toybox.Application;
+using Toybox.Communications;
+using Toybox.Media;
+using Toybox.System;
+
+// Downloads queued books to the device media cache, one derived chunk at a
+// time. One chunk == one Media track, so the native player gives real chapter
+// navigation. Works from the per-book jobs in JobStore - chunk boundaries
+// come from Chunks.at(), and each downloaded refId is recorded via
+// BookStore.saveChunk (position == chunk index, overwrite-safe). Nothing here
+// is ever O(chunks) - or O(queued books x files) - in a single Storage value
+// (see Constants.mc for the OOM post-mortem).
+//
+// STORAGE DISCIPLINE: queue state is read FRESH at every step and only
+// read-modify-written - never held in a long-lived field and persisted
+// wholesale. A snapshot design silently clobbered any queue change made while
+// a sync was running (book queued mid-sync erased after "Queued!" was shown;
+// "Clear queue" undone seconds later) and let a deleted book's job survive
+// deletion, resurrecting the book with its head chunks permanently missing.
+//
+// Extends Communications.SyncDelegate. VERIFIED against SDK 9.2.0's api.mir
+// (the compiler's own contract, not docs or samples):
+// AudioContentProviderApp.getSyncDelegate() is declared
+// `as Communications.SyncDelegate or Null`, and Media.SyncDelegate is a
+// SEPARATE class (not a subtype), so returning one violates the declared
+// contract. Do NOT "fix" this back to Media.SyncDelegate to match the GitHub
+// MonkeyMusic sample - that sample is 2018-era and predates the type change;
+// build b24 tried exactly that, fixed nothing (both known failures
+// persisted), and was reverted.
+class SyncDelegate extends Communications.SyncDelegate {
+
+    private var mTotal;         // ops planned at sync start (downloads + deletes)
+    private var mDone;          // ops completed
+    private var mProgressSync;  // held so its async chain isn't GC'd mid-flight
+    private var mBookwaveRequest;
+    private var mSyncError;     // download error surfaced AFTER progress runs, or null
+
+    function initialize() {
+        SyncDelegate.initialize();
+        mTotal = 0;
+        mDone = 0;
+        mSyncError = null;
+    }
+
+    function deletes() {
+        var d = Application.Storage.getValue(Store.DELETE_LIST);
+        return (d == null) ? [] : d;
+    }
+
+    // The system only starts a sync when this is true. Besides queued downloads
+    // and deletes, a sync is needed when we have an unflushed local listen to
+    // push (Progress.hasDirty), or when the user tapped "Sync now" (the one-shot
+    // FORCE_SYNC flag, cleared at the top of onStartSync so it can't loop).
+    function isSyncNeeded() {
+        return (JobStore.list().size() != 0)
+            || (deletes().size() != 0)
+            || Progress.hasDirty()
+            || (Application.Storage.getValue(Store.FORCE_SYNC) != null);
+    }
+
+    function onStartSync() {
+        mBookwaveRequest = Application.Storage.getValue("bookwave.syncRequest.v1");
+        Application.Storage.deleteValue("bookwave.syncRequest.v1");
+        // A delegate normally has one run, but resetting here also makes a
+        // simulator/manual re-entry deterministic and prevents stale progress
+        // or error state from leaking into a later run.
+        mTotal = 0;
+        mDone = 0;
+        mSyncError = null;
+        // Consume the one-shot "Sync now" flag immediately so this sync can't be
+        // re-triggered by it forever.
+        Application.Storage.deleteValue(Store.FORCE_SYNC);
+        // Downloads/deletes run FIRST and drive the sync; the two-way progress
+        // exchange runs at the very END (finishSync). It is deliberately NOT put
+        // in front of downloads: progress must never gate, delay, or - worst
+        // case - regress the historically crash-prone download path. By the time
+        // progress runs the downloads are already done, so any progress-request
+        // failure is harmless. finishSync is reached from BOTH success paths
+        // (nothing-to-download here, and all-downloads-done in downloadNext).
+        var toDelete = deletes();
+
+        // Cancel any queued job for a book being deleted BEFORE counting or
+        // downloading anything - otherwise the very sync that deletes the book
+        // resumes its job and resurrects it missing its head chunks.
+        for (var i = 0; i < toDelete.size(); ++i) {
+            JobStore.remove(toDelete[i]);
+        }
+
+        mTotal = toDelete.size();
+        var jobIds = JobStore.list();
+        for (var i = 0; i < jobIds.size(); ++i) {
+            var job = JobStore.get(jobIds[i]);
+            if (job == null) {
+                // Stray index entry (crash window) - heal HERE too, not just
+                // in downloadNext: a queue of only strays makes mTotal 0 and
+                // returns before downloadNext ever runs, leaving
+                // isSyncNeeded() true forever (endless no-op syncs). Art may
+                // already exist for the dying job - reclaim it.
+                JobStore.remove(jobIds[i]);
+                BookStore.dropArtIfUnindexed(jobIds[i]);
+                continue;
+            }
+            var left = Chunks.total(job["durs"]) - job["done"];
+            if (left > 0) { mTotal += left; }
+        }
+        if (mTotal == 0) {
+            finishSync();
+            return;
+        }
+
+        deleteQueued(toDelete);
+        downloadNext();
+    }
+
+    // Final, DECOUPLED step of every successful sync: exchange play progress
+    // with ABS (pull other devices' positions + merge, then push our offline
+    // listens), then complete. ProgressSync always invokes its continuation -
+    // even if a request errors - so the sync always reaches notifySyncComplete.
+    // Kept separate from the download engine on purpose (see onStartSync).
+    function finishSync() {
+        mProgressSync = new ProgressSync();
+        mProgressSync.start(method(:onProgressDone));
+    }
+
+    function onProgressDone() {
+        // Report a download error (if any) only now - AFTER the progress exchange
+        // has had its chance to flush a dirty offline listen. null on a clean sync.
+        // Do not clear a useful prior error after a no-op/force-progress sync;
+        // clear it only when real download/delete work completed cleanly.
+        if ((mSyncError == null) && (mDone > 0)) {
+            Application.Storage.deleteValue(Store.LAST_SYNC_ERROR);
+        }
+        if (mSyncError == null && mProgressSync.succeeded && Progress.dirtyIds().size() == 0 && JobStore.list().size() == 0) {
+            Application.Storage.setValue("bookwave.lastSync.v1", Progress.nowSec());
+            if(mBookwaveRequest!=null){Application.Storage.setValue("bookwave.completedSyncRequest.v1",mBookwaveRequest);}
+        } else if(mBookwaveRequest!=null) {
+            Application.Storage.setValue("bookwave.failedSyncRequest.v1",mBookwaveRequest);
+        }
+        Communications.notifySyncComplete(mSyncError);
+    }
+
+    // System-initiated cancel: stop cleanly. In-flight request is abandoned;
+    // jobs stay in Storage with their cursor, so the next sync resumes.
+    function onStopSync() {
+        Communications.cancelAllRequests();
+        Communications.notifySyncComplete(null);
+    }
+
+    // Delete every queued BOOK: un-index it, evict its cached chunks and records,
+    // and drop its saved progress.
+    function deleteQueued(toDelete) {
+        if (toDelete.size() == 0) { return; }
+        for (var i = 0; i < toDelete.size(); ++i) {
+            // Un-index FIRST, then evict. A hard kill between the two then leaves
+            // an UNindexed book with orphan chunks (harmlessly swept next sync,
+            // never played) rather than an INDEXED book with zero chunks (which
+            // makes playback start a DIFFERENT book's audio). Prune its progress
+            // too, so a deleted book can never win bestResume() and misdirect a
+            // later native-widget resume to the wrong (or no) book.
+            BookStore.removeFromIndex(toDelete[i]);
+            BookStore.deleteBook(toDelete[i]);
+            Progress.remove(toDelete[i]);
+            onOpDone();
+        }
+
+        // Remove ONLY the entries just processed - a delete the UI queued
+        // while this loop ran must survive for the next sync, not be
+        // silently dropped by a wholesale clear.
+        var fresh = deletes();
+        var remaining = [];
+        for (var i = 0; i < fresh.size(); ++i) {
+            if (!containsId(toDelete, fresh[i])) { remaining.add(fresh[i]); }
+        }
+        if (remaining.size() > 0) {
+            Application.Storage.setValue(Store.DELETE_LIST, remaining);
+        } else {
+            Application.Storage.deleteValue(Store.DELETE_LIST);
+        }
+    }
+
+    function containsId(arr, itemId) {
+        for (var i = 0; i < arr.size(); ++i) {
+            if (arr[i].equals(itemId)) { return true; }
+        }
+        return false;
+    }
+
+    // Download the next chunk of the first queued book. Reads the queue fresh
+    // so mid-sync queue changes (new book, clear queue, delete) take effect.
+    function downloadNext() {
+        var jobIds = JobStore.list();
+        if (jobIds.size() == 0) {
+            sweepOrphans();
+            finishSync();
+            return;
+        }
+
+        var itemId = jobIds[0];
+
+        // Honor a delete queued mid-sync: stop downloading the doomed book
+        // now (its actual deletion runs at the next sync start) instead of
+        // pouring hundreds more chunks into a book the user already deleted.
+        if (containsId(deletes(), itemId)) {
+            JobStore.remove(itemId);
+            downloadNext();
+            return;
+        }
+
+        var job = JobStore.get(itemId);
+        if (job == null) {
+            // Stray index entry (crash window) - self-heal and move on,
+            // reclaiming any art the dead job already fetched.
+            JobStore.remove(itemId);
+            BookStore.dropArtIfUnindexed(itemId);
+            downloadNext();
+            return;
+        }
+
+        // NO cover-art fetch here, deliberately. b29 fetched cover art at sync
+        // start via Communications.makeImageRequest - but that call routes image
+        // work through the phone (Garmin Connect Mobile), and firing it as the
+        // FIRST action of a phoneless WiFi download (a tactix on wifi) faults
+        // the ACP image pipeline synchronously, BEFORE the request is even sent,
+        // surfacing on-watch as "Media Error Occurred" the moment ANY book is
+        // selected to download. It could not be fixed sidecar-side (the crash is
+        // on the watch, before /cover leaves it). So the sync goes straight to
+        // the first audio chunk - the SDK-sanctioned makeWebRequest path that
+        // streams bytes into the media cache, never the 512KB heap. The player's
+        // time indicator is UNAFFECTED (it comes from the M4A moov atom, not
+        // art). Cover art can only be re-added from a foreground UI context or
+        // baked into the audio - never from makeImageRequest inside a sync.
+
+        var c = Chunks.at(job["durs"], job["done"]);
+        if (c == null) {
+            // Book finished (or cursor out of range) - drop the job, move on.
+            JobStore.remove(itemId);
+            downloadNext();
+            return;
+        }
+
+        var options = {
+            :method => Communications.HTTP_REQUEST_METHOD_GET,
+            // Audio download: hand bytes straight to the media cache.
+            :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_AUDIO,
+            // The sidecar transcodes chunks to AAC in a REAL M4A/MP4 container
+            // (was raw ADTS). The native player derives track duration by
+            // parsing the cached file and there is NO API to supply it any
+            // other way - raw ADTS carries no duration, which is why the
+            // player showed no elapsed/total time. The M4A moov atom carries
+            // exact duration, so the position indicator works.
+            :mediaEncoding => Media.ENCODING_M4A
+        };
+        // The optional reverse-proxy header (issue #41) must ride on the AUDIO
+        // download too - it is by far the most requests the watch makes, and a
+        // proxy that rejects them turns into "Transfer failed" with no clue as
+        // to why. Added conditionally so a request without the feature stays
+        // byte-identical to before.
+        var proxy = AbsApi.proxyHeaders();
+        if (proxy != null) { options[:headers] = proxy; }
+
+        // "k" pins WHICH chunk this request is for and "gen" pins WHICH job
+        // generation dispatched it: if the cursor moved, or the job was
+        // replaced wholesale by a re-queue (gen bumps on every re-queue, so
+        // even a same-cursor-value collision like 0==0 is caught), recording
+        // the stale bytes would put the wrong audio at the wrong position -
+        // the callback validates and discards instead.
+        var context = { "item" => itemId, "k" => job["done"], "gen" => job["gen"] };
+        var delegate = new RequestDelegate(method(:onTrackDownloaded), context);
+        var url = AbsApi.sidecarChunkUrl(itemId, job["inos"][c["file"]],
+                                        c["cstart"], c["cend"], job["speed"]);
+        delegate.makeWebRequest(url, null, options);
+    }
+
+    // On success `data` is a Media.ContentRef (the doc's union type is loose,
+    // but ContentRef is what an audio download delivers). Record its id at the
+    // job's cursor position and advance.
+    function onTrackDownloaded(code, data, context) {
+        if ((code != 200) || (data == null)) {
+            var itemId = context["item"];
+            var job = JobStore.get(itemId);
+            // A superseded/cancelled request can fail after the foreground has
+            // already replaced its job. Ignore that stale result exactly as the
+            // success path below ignores stale bytes; never remove the new job.
+            if ((job == null) || (context["gen"] != job["gen"]) || (context["k"] != job["done"])) {
+                downloadNext();
+                return;
+            }
+
+            // Download failed. Do NOT end here: a dirty offline listen still needs
+            // flushing and the progress exchange requires no successful download.
+            // Route through finishSync (which runs ProgressSync, then reports the
+            // error via onProgressDone). Remove ONLY this failed job first: its
+            // committed BookStore suffix remains playable and re-selecting the
+            // book resumes at first+count, but isSyncNeeded no longer retries the
+            // same bad transfer forever on every system sync.
+            mSyncError = Errors.downloadMessage(code);
+            Application.Storage.setValue("bookwave.failedBook.v1", itemId);
+            var title = (job["title"] != null) ? job["title"] : "Book";
+            var total = Chunks.total(job["durs"]);
+            var detail = title + "\nPart " + (context["k"] + 1).toString()
+                + "/" + total.toString() + "\n" + mSyncError;
+            try {
+                Application.Storage.setValue(Store.LAST_SYNC_ERROR, detail);
+            } catch (e) {
+                // If Storage itself is full, the native error still gets the
+                // concise message below; never let diagnostics strand sync mode.
+                System.println("PROVIDER_OPERATION_FAILED");
+            }
+            JobStore.remove(itemId);
+            // Heal the narrow crash window where a prior chunk was saved but
+            // the process died before addToIndex(): the valid partial suffix
+            // should remain visible/playable after this job is paused by removal.
+            if ((BookStore.get(itemId) != null) && (BookStore.count(itemId) > 0)) {
+                BookStore.addToIndex(itemId);
+            } else {
+                BookStore.dropArtIfUnindexed(itemId);
+            }
+            finishSync();
+            return;
+        }
+
+        var itemId = context["item"];
+        var refId = data.getId();
+
+        var job = JobStore.get(itemId);
+        if ((job == null) || (context["gen"] != job["gen"]) || (context["k"] != job["done"])) {
+            // The job was cancelled (cleared/deleted), replaced by a re-queue
+            // (generation mismatch), or its cursor moved while this chunk was
+            // in flight - these bytes no longer have a valid slot. Evict the
+            // now-ownerless cached item and carry on with whatever the queue
+            // holds now.
+            Media.deleteCachedItem(new Media.ContentRef(refId, Media.CONTENT_TYPE_AUDIO));
+            downloadNext();
+            return;
+        }
+
+        var k = job["done"];
+        var base = (job["base"] != null) ? job["base"] : 0;
+        BookStore.ensureMeta(itemId, job["title"], job["author"], job["durs"],
+            base, PlaybackSpeed.normalize(job["speed"]));
+        BookStore.saveChunk(itemId, k, refId);
+        BookStore.addToIndex(itemId);
+
+        // Advance + persist the cursor so a crash won't re-fetch. saveChunk is
+        // overwrite-by-position, so even a crash between these writes can only
+        // cause a harmless re-download, never a duplicate or a skipped chunk.
+        job["done"] = k + 1;
+        if (job["done"] >= Chunks.total(job["durs"])) {
+            JobStore.remove(itemId);
+        } else {
+            JobStore.put(itemId, job);
+        }
+
+        onOpDone();
+        downloadNext();
+    }
+
+    // Evict cached audio the OS holds that no book's records claim. Orphans
+    // come from crash windows (item cached, callback never recorded it) and
+    // would otherwise eat media-cache space forever - the cache outlives the
+    // app's own bookkeeping. Runs at the end of every sync; bounded by
+    // Chunks.MAX_TOTAL known refIds. Orphans are collected first, then
+    // evicted - never delete while walking the OS iterator.
+    function sweepOrphans() {
+        var known = {};
+        var index = Application.Storage.getValue(Store.BOOK_INDEX);
+        if (index == null) { index = []; }
+        for (var b = 0; b < index.size(); ++b) {
+            BookStore.addRefIds(index[b], known);
+        }
+        // Queued books may have recorded chunks that aren't indexed yet
+        // (crash between saveChunk and addToIndex) - their pages are still
+        // authoritative, so count them as known too.
+        var jobIds = JobStore.list();
+        for (var i = 0; i < jobIds.size(); ++i) {
+            if (!containsId(index, jobIds[i])) {
+                BookStore.addRefIds(jobIds[i], known);
+            }
+        }
+
+        var orphans = [];
+        var iter = Media.getContentRefIter({ :contentType => Media.CONTENT_TYPE_AUDIO });
+        if (iter != null) {
+            var ref = iter.next();
+            while (ref != null) {
+                if (known[ref.getId()] == null) { orphans.add(ref.getId()); }
+                ref = iter.next();
+            }
+        }
+        for (var i = 0; i < orphans.size(); ++i) {
+            Media.deleteCachedItem(new Media.ContentRef(orphans[i], Media.CONTENT_TYPE_AUDIO));
+        }
+    }
+
+    function onOpDone() {
+        ++mDone;
+        // Mid-sync queue changes can grow/shrink the real work vs the plan
+        // made at sync start - clamp so the bar never runs past 100%.
+        var pct = ((mDone / mTotal.toFloat()) * 100).toNumber();
+        if (pct > 100) { pct = 100; }
+        Communications.notifySyncProgress(pct);
+    }
+}

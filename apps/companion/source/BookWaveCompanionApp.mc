@@ -19,6 +19,7 @@ class BookWaveCompanionApp extends Application.AppBase {
     function onStart(state) {
         var store = new SnapshotStore();
         _snapshot = store.load();
+        BookWaveFeed.phone(_snapshot==null?null:_snapshot.toDictionary(),false);
         _loadStatus = store.getLoadStatus();
         _loadError = store.getLastError();
         _transport = new PhoneTransport(self, store);
@@ -26,6 +27,7 @@ class BookWaveCompanionApp extends Application.AppBase {
     }
 
     function onStop(state) {
+        BookWaveFeed.phone(_snapshot==null?null:_snapshot.toDictionary(),false);
         if (_transport != null) { _transport.stop(); }
         _transport = null;
     }
@@ -43,6 +45,7 @@ class BookWaveCompanionApp extends Application.AppBase {
 
     function transportSnapshot(snapshot, connection) {
         _snapshot = snapshot;
+        BookWaveFeed.phone(snapshot==null?null:snapshot.toDictionary(),true);
         _loadStatus = snapshot == null ? SnapshotStoreState.LOAD_NEVER_SYNCED : SnapshotStoreState.LOAD_VALID;
         _loadError = null;
         if (_view != null) { _view.setSnapshot(snapshot, _loadStatus); }
