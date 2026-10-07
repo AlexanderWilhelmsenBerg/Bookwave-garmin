@@ -1,6 +1,6 @@
 # WatchShelf Sidecar integration policy
 
-**Classification:** Current owner-selected boundary; runtime integration still planned. **Updated:** 2026-10-07.
+**Classification:** Current owner-selected boundary; runtime integration implemented; physical acceptance pending. **Updated:** 2026-10-08.
 
 The owner selected a separate BookWave Audio Provider using **existing WatchShelf Sidecar**. Companion
 remains a Device App for PHONE state/controls; the provider owns native offline watch media and actual
@@ -11,8 +11,8 @@ Replacing/removing Sidecar remains outside the selected scope.
 Inspection at WatchShelf commit `93ac7507dae1cae1221509cefd97441dab36e955` found no BookWave phone
 receiver or Sidecar watch-inventory/queue/listening-session route. Sidecar login sessions are auth state.
 Phone download selection identifies a server item; Sidecar fetches/transcodes ABS audio rather than
-reading the phone's local bytes. No WatchShelf code has been copied; any reuse retains MIT notices and
-needs provenance review. Do not carry destructive upgrade resets, private logs or normal ABS-key fallback
+reading the phone's local bytes. Reviewed WatchShelf engine reuse retains MIT notices and exact file provenance in
+`apps/audio-provider/third-party/`. Do not carry destructive upgrade resets, private logs or normal ABS-key fallback
 into the new provider. Provider credentials/account pairing need their own explicit contract.
 
 [Provider/device plan](device-management-plan.md), [Garmin #7](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/7) and Android

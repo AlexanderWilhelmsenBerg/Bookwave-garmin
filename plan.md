@@ -1,13 +1,13 @@
 # BookWave Garmin — Delivery Plan
 
-**Current Phase 2 implementation (2026-10-07):** foreground phone transport, negotiated ordered
-snapshot delivery, durable clear/snapshot acknowledgements and bounded reconnect handling are
-implemented. See [the shared wire contract](docs/transport-contract.md). Build/test-compilation and physical acceptance
-are recorded separately in the Phase 2 inventory. Commands, reconciliation/Force sync,
-provider/device controls and BookWave complication publishing are owner-selected planned work
-([provider plan](docs/device-management-plan.md), [future face feed](docs/watchface-state-plan.md)).
-Watch face and Data Field implementation remain deferred. Earlier Phase 1 descriptions below
-describe the persisted model and its original acceptance, not the current transport scope.
+**Provider/control/feed implementation — 2026-10-08:** BookWave Audio is a separate native
+Audio Content Provider using existing WatchShelf Sidecar. Android now owns Room-backed device controls,
+durable requests, reported inventory and imported original listening events. Companion PHONE and
+provider GARMIN complication publishers are implemented. Watch face and Data Field remain deferred.
+See the [provider contract](docs/provider-contract.md), [feed contract](docs/feed-contract.md),
+[installation guide](docs/install-for-testing.md) and [delivery/test record](docs/testing/provider-delivery.md).
+Physical GD/GF and prior Companion acceptance remain pending.
+
 
 
 **Updated:** 2026-10-07 for Phase 2 PR #5 and the matching Android bridge integration.
@@ -60,7 +60,7 @@ WatchShelf remains responsible for:
 
 WatchShelf may continue during transition. The owner subsequently selected a separate BookWave Audio
 Provider using existing Sidecar, justified by the absence of a supported remote queue/inventory/events
-interface. The selected implementation is planned; it does not replace/remove Sidecar. See
+interface. The selected implementation is present; it does not replace/remove Sidecar. See
 [the provider/device plan](docs/device-management-plan.md).
 
 ---
@@ -138,8 +138,8 @@ The applications share concepts and fixtures, but remain independently installab
 
 The diagram describes the initial coexistence path. The owner-selected next integration adds a
 separate BookWave Audio Provider → existing Sidecar path and Android device control/report messages.
-Companion PHONE and provider GARMIN state will publish to a future face through Complications.
-No provider or publication runtime is delivered by this plan update.
+Companion PHONE and provider GARMIN state publish to a future face through Complications.
+The separate provider and both publishers are implemented; hardware acceptance remains pending.
 
 ---
 
@@ -270,7 +270,7 @@ reconciliation and publication acceptance. Data Field remains later; Android rel
 - A minimal Connect IQ application compiles for the target fēnix 8.
 - Simulator launch path is documented.
 - Physical sideload path is documented.
-- No WatchShelf or Android integration yet.
+- Historical Phase 1 excluded integration; current Phase 2 and provider delivery are recorded above.
 
 ---
 
@@ -591,14 +591,13 @@ logging physical tradeoffs; removing/replacing Sidecar still requires a separate
 
 ## Phase 9 — Selected BookWave Audio Provider using existing Sidecar
 
-**Owner decision accepted 2026-10-07; runtime not implemented.** [Garmin #7](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/7) and
+**Owner decision accepted 2026-10-07; implementation present 2026-10-08, physical acceptance pending.** [Garmin #7](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/7) and
 [the device/account/wire/test plan](docs/device-management-plan.md) are the current scope. Build a separate
 Audio Content Provider with a distinct app ID, native Wi-Fi/cache/queue/playback ownership and actual
 listening-event journal. Android adds Room-backed inline device management, the completed authorized
 phone-book picker, truthful watch downloads/timestamps and idempotent Force sync. Sidecar retrieves/
 transcodes the selected server item; this is not a local phone-file transfer. No normal ABS credentials
-travel in the Companion protocol. Reviewed MIT reuse may be considered with notices; no source has
-been copied. Do not import destructive upgrades or private logging.
+travel in the Companion protocol. Reviewed WatchShelf MIT engine reuse retains notices and source provenance in `apps/audio-provider/third-party/`. Do not import destructive upgrades or private logging.
 
 Publish real GARMIN state alongside Companion PHONE state for the [future watch face](docs/watchface-state-plan.md).
 The face itself, Data Field and replacing/removing Sidecar remain deferred. GD-01–10/GF-01–07 and

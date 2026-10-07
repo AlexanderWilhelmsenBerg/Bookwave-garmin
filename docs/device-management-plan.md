@@ -1,6 +1,6 @@
 # Owner-selected BookWave Audio Provider and device management
 
-**Classification:** Accepted product/architecture plan; runtime not implemented. **Updated:** 2026-10-07.
+**Classification:** Accepted product/architecture plan; runtime implemented; physical acceptance pending. **Updated:** 2026-10-08.
 Track [Garmin #7](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/7) and Android [#119](https://github.com/AlexanderWilhelmsenBerg/Audiobookshelf-Manager-Claude/issues/119).
 
 The owner accepted a separate BookWave **Audio Content Provider** using existing WatchShelf Sidecar.
@@ -18,8 +18,8 @@ not audiobook listening sessions. The normal Companion cannot own native Media d
 a URL. Garmin's [Media API](https://developer.garmin.com/connect-iq/api-docs/Toybox/Media.html) requires
 an Audio Content Provider context. A separate provider is justified by the owner's requested controls.
 
-No WatchShelf source has been copied. Future reuse needs license/provenance review and retained MIT
-notices. Do not copy destructive cache/storage reset on upgrade, private logging or normal ABS key
+Reviewed WatchShelf engine source was adapted under MIT, with original notices, exact upstream pin and
+file provenance retained in `apps/audio-provider/third-party/`. Do not copy destructive cache/storage reset on upgrade, private logging or normal ABS key
 fallback into a BookWave provider. Document provider-scoped Sidecar authentication and explicit account
 pairing before queueing; normal ABS credentials never travel in the Companion protocol.
 
@@ -66,3 +66,8 @@ only when automation cannot establish it; no device access or physical acceptanc
 Phone privacy changes cannot erase disconnected watch media. Document provider-local account retention
 and face-cache clearing honestly. Android reliability retains priority; missing hardware gates remain
 logged while independent development can progress.
+
+## Current implementation and evidence
+
+The provider, durable Android device controls/event import and both protected publishers are implemented.
+See [provider-delivery.md](testing/provider-delivery.md) for exact build/test delivery. Runtime policy is recorded in the provider/feed contracts; the tests above remain physical acceptance obligations.

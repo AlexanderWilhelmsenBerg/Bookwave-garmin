@@ -1,0 +1,165 @@
+{
+  "upstream": "93ac7507dae1cae1221509cefd97441dab36e955",
+  "cases": [
+    {
+      "method": "GET",
+      "path": "/health",
+      "kind": "health",
+      "response": "ok"
+    },
+    {
+      "method": "POST",
+      "path": "/login",
+      "kind": "login",
+      "response": {
+        "user": {
+          "token": "01234567-89ab-4cde-8123-456789abcdef"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/libraries",
+      "kind": "libraries",
+      "response": {
+        "libraries": [
+          {
+            "id": "library",
+            "name": "Fixture"
+          }
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/list",
+      "kind": "list",
+      "response": {
+        "books": [
+          {
+            "id": "book",
+            "title": "Fixture",
+            "author": ""
+          }
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/continue",
+      "kind": "continue",
+      "response": {
+        "books": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/authors",
+      "kind": "authors",
+      "response": {
+        "authors": [
+          {
+            "id": "author",
+            "name": "Fixture",
+            "count": 2
+          }
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/series",
+      "kind": "series",
+      "response": {
+        "series": [
+          {
+            "id": "series",
+            "name": "Fixture",
+            "count": 2
+          }
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/collections",
+      "kind": "collections",
+      "response": {
+        "collections": [
+          {
+            "id": "collection",
+            "name": "Fixture"
+          }
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/files",
+      "kind": "files",
+      "response": {
+        "title": "Fixture",
+        "author": "",
+        "files": [
+          {
+            "ino": "1",
+            "duration": 3600
+          }
+        ],
+        "progress": null,
+        "future": true
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/progress",
+      "kind": "progress",
+      "response": {
+        "currentTime": 12,
+        "duration": 3600,
+        "lastUpdate": 1800000000,
+        "isFinished": false
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/progress",
+      "kind": "progress",
+      "response": {}
+    },
+    {
+      "method": "POST",
+      "path": "/progress",
+      "kind": "write",
+      "response": {
+        "ok": true
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/transcode",
+      "kind": "binary",
+      "responseType": "audio/mp4",
+      "query": {
+        "item": "book",
+        "file": "1",
+        "fmt": "m4a3",
+        "start": 0,
+        "end": 15,
+        "speed": 100,
+        "token": "opaque-sidecar-session"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/cover",
+      "kind": "binary",
+      "responseType": "image/jpeg",
+      "query": {
+        "item": "book",
+        "w": 128,
+        "token": "opaque-sidecar-session"
+      }
+    }
+  ]
+}

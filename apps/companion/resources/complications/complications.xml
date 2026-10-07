@@ -1,0 +1,1 @@
+<complications><complication id="0" access="protected" longLabel="@Strings.FeedName" shortLabel="@Strings.FeedName" icon="@Drawables.FeedIcon"><faceIt defaultText="@Strings.FeedName"/></complication></complications>

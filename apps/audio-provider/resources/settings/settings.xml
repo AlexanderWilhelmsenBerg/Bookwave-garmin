@@ -1,0 +1,17 @@
+<settings>
+    
+    <setting propertyKey="@Properties.absServerUrl" title="@Strings.settingServerUrl"
+             prompt="@Strings.settingServerUrlPrompt">
+        <settingConfig type="alphaNumeric"/>
+    </setting>
+    
+    
+    <setting propertyKey="@Properties.absProxyHeader" title="@Strings.settingProxyHeader"
+             prompt="@Strings.settingProxyHeaderPrompt">
+        <settingConfig type="alphaNumeric"/>
+    </setting>
+    <setting propertyKey="@Properties.absProxySecret" title="@Strings.settingProxySecret"
+             prompt="@Strings.settingProxySecretPrompt">
+        <settingConfig type="alphaNumeric"/>
+    </setting>
+</settings>

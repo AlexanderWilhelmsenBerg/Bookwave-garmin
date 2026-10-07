@@ -1,3 +1,4 @@
 <drawables>
     <bitmap id="LauncherIcon" filename="launcher.svg"/>
+    <bitmap id="FeedIcon" filename="feed.svg"/>
 </drawables>

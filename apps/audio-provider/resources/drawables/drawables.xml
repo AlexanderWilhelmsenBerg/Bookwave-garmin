@@ -1,0 +1,13 @@
+<drawables>
+    <!-- Launcher/app icon. -->
+    <bitmap id="launcher" filename="feed.svg" dithering="none"/>
+
+    <!-- Provider icon shown in the device media menu. A palette keeps it crisp
+         on limited-color MIP displays. -->
+    <bitmap id="providerIcon" filename="feed.svg"/>
+
+    <!-- Placeholder book-cover glyph for menu rows whose real cover hasn't
+         been fetched yet (or failed to). Same colors as the provider icon. -->
+    <bitmap id="bookIcon" filename="book_icon.png" dithering="none"/>
+    <bitmap id="FeedIcon" filename="feed.svg"/>
+</drawables>

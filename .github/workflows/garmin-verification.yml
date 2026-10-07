@@ -24,16 +24,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate Phase 1 boundaries
+      - name: Validate app boundaries and contracts
         run: bash tools/ci/guardrails.sh
 
   compile:
-    name: Compile Companion (${{ matrix.device }})
+    name: Compile ${{ matrix.app }} (${{ matrix.device }})
     needs: guardrails
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
+        app: [companion, audio-provider]
         device:
           - fenix843mm
           - fenix847mm
@@ -54,12 +55,12 @@ jobs:
           rm developer_key.pem
           chmod 600 developer_key.der
 
-      - name: Compile Companion
+      - name: Compile target app
         uses: blackshadev/garmin-connectiq-build-action@7f92305153c18b024c9cb02206145ba2415abbb2
         with:
-          projectJungle: apps/companion/monkey.jungle
+          projectJungle: apps/${{ matrix.app }}/monkey.jungle
           developerKey: developer_key.der
-          outputPath: out/BookWaveCompanion-${{ matrix.device }}.prg
+          outputPath: out/BookWave-${{ matrix.app }}-${{ matrix.device }}.prg
           device: ${{ matrix.device }}
           typeCheck: "1"
 
@@ -75,16 +76,19 @@ jobs:
           find out -maxdepth 1 -type f \( -name '*.prg' -o -name '*.iq' \) -exec sha256sum {} + >> out/BUILD-INFO.txt
 
 
-      - name: Retain BookWaveCompanion-${{ matrix.device }} for acceptance
+      - name: Retain BookWave-${{ matrix.app }}-${{ matrix.device }} for acceptance
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: BookWaveCompanion-${{ matrix.device }}-${{ github.sha }}
+          name: BookWave-${{ matrix.app }}-${{ matrix.device }}-${{ github.sha }}
           path: out/
           if-no-files-found: error
           retention-days: 30
 
   unit-test-compile:
-    name: Compile Run No Evil tests
+    strategy:
+      matrix:
+        app: [companion, audio-provider]
+    name: Compile Run No Evil tests (${{ matrix.app }})
     needs: guardrails
     runs-on: ubuntu-latest
     steps:
@@ -103,12 +107,12 @@ jobs:
           rm developer_key.pem
           chmod 600 developer_key.der
 
-      - name: Compile test-enabled Companion
+      - name: Compile test-enabled app
         uses: blackshadev/garmin-connectiq-build-action@7f92305153c18b024c9cb02206145ba2415abbb2
         with:
-          projectJungle: apps/companion/monkey.jungle
+          projectJungle: apps/${{ matrix.app }}/monkey.jungle
           developerKey: developer_key.der
-          outputPath: out/BookWaveCompanionTests-fenix847mm.prg
+          outputPath: out/BookWave-${{ matrix.app }}-Tests-fenix847mm.prg
           device: fenix847mm
           typeCheck: "1"
           extraArgs: "--unit-test"
@@ -125,16 +129,19 @@ jobs:
           find out -maxdepth 1 -type f \( -name '*.prg' -o -name '*.iq' \) -exec sha256sum {} + >> out/BUILD-INFO.txt
 
 
-      - name: Retain BookWaveCompanionTests-fenix847mm for acceptance
+      - name: Retain BookWave-${{ matrix.app }}-Tests-fenix847mm for acceptance
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: BookWaveCompanionTests-fenix847mm-${{ github.sha }}
+          name: BookWave-${{ matrix.app }}-Tests-fenix847mm-${{ github.sha }}
           path: out/
           if-no-files-found: error
           retention-days: 30
 
   package:
-    name: Export Companion package
+    strategy:
+      matrix:
+        app: [companion, audio-provider]
+    name: Export ${{ matrix.app }} package
     needs:
       - guardrails
       - compile
@@ -159,9 +166,9 @@ jobs:
       - name: Export Connect IQ package
         uses: blackshadev/garmin-connectiq-release-action@d7a4a7a5758147469d4f70a8e32c0165e8441103
         with:
-          projectJungle: apps/companion/monkey.jungle
+          projectJungle: apps/${{ matrix.app }}/monkey.jungle
           developerKey: developer_key.der
-          outputPath: out/BookWaveCompanion.iq
+          outputPath: out/BookWave-${{ matrix.app }}.iq
 
 
       - name: Record development build identity
@@ -174,10 +181,10 @@ jobs:
           find out -maxdepth 1 -type f \( -name '*.prg' -o -name '*.iq' \) -exec sha256sum {} + >> out/BUILD-INFO.txt
 
 
-      - name: Retain BookWaveCompanion-package for acceptance
+      - name: Retain BookWave-${{ matrix.app }}-package for acceptance
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: BookWaveCompanion-package-${{ github.sha }}
+          name: BookWave-${{ matrix.app }}-package-${{ github.sha }}
           path: out/
           if-no-files-found: error
           retention-days: 30
