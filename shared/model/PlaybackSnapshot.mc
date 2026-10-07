@@ -1,5 +1,6 @@
 using Toybox.Lang;
 
+(:background)
 class PlaybackSnapshot {
     var protocolVersion;
     var profileId;
@@ -41,5 +42,22 @@ class PlaybackSnapshot {
             "playing" => playing,
             "source" => source
         };
+    }
+
+    function sameState(other) {
+        if (other == null) {
+            return false;
+        }
+        return protocolVersion == other.protocolVersion
+            && profileId == other.profileId
+            && bookId == other.bookId
+            && title == other.title
+            && author == other.author
+            && chapterTitle == other.chapterTitle
+            && positionMs == other.positionMs
+            && durationMs == other.durationMs
+            && updatedAt == other.updatedAt
+            && playing == other.playing
+            && source == other.source;
     }
 }

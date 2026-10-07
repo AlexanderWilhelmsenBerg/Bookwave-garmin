@@ -1,5 +1,6 @@
 using Toybox.Lang;
 
+(:background)
 module SnapshotCodec {
     const MAX_ID_LENGTH = 96;
     const MAX_TITLE_LENGTH = 160;

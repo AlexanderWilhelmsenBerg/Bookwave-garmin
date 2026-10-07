@@ -1,13 +1,19 @@
 using Toybox.Application.Storage;
 using Toybox.Lang;
 
+(:background)
 module SnapshotStoreState {
     const STORAGE_KEY = "bookwave.playbackSnapshot.v1";
     const LOAD_NEVER_SYNCED = "never_synced";
     const LOAD_VALID = "valid";
     const LOAD_INVALID = "invalid";
+
+    const ACCEPTED = "accepted";
+    const REPLAY = "replay";
+    const REJECTED = "rejected";
 }
 
+(:background)
 class SnapshotStore {
     var _loadStatus = SnapshotStoreState.LOAD_NEVER_SYNCED;
     var _lastError = null;
@@ -59,6 +65,46 @@ class SnapshotStore {
             return false;
         }
 
+        return write(snapshot);
+    }
+
+    function acceptTransportCandidate(candidate) {
+        _lastError = null;
+
+        var encoded = candidate;
+        if (candidate instanceof PlaybackSnapshot) {
+            encoded = candidate.toDictionary();
+        }
+
+        var snapshot = SnapshotCodec.decode(encoded);
+        if (snapshot == null) {
+            _lastError = SnapshotCodec.getLastError();
+            return SnapshotStoreState.REJECTED;
+        }
+
+        var current = load();
+        if (current != null) {
+            if (snapshot.updatedAt < current.updatedAt) {
+                _lastError = "stale_snapshot";
+                return SnapshotStoreState.REJECTED;
+            }
+
+            if (snapshot.updatedAt == current.updatedAt) {
+                if (snapshot.sameState(current)) {
+                    return SnapshotStoreState.REPLAY;
+                }
+                _lastError = "timestamp_conflict";
+                return SnapshotStoreState.REJECTED;
+            }
+        }
+
+        if (!write(snapshot)) {
+            return SnapshotStoreState.REJECTED;
+        }
+        return SnapshotStoreState.ACCEPTED;
+    }
+
+    function write(snapshot) {
         try {
             Storage.setValue(SnapshotStoreState.STORAGE_KEY, snapshot.toDictionary());
             _loadStatus = SnapshotStoreState.LOAD_VALID;
