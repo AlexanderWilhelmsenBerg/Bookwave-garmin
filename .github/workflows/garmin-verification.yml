@@ -46,6 +46,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # Keep the output directory owned by the runner before the root Docker compiler writes files.
+          mkdir -p out
           openssl genrsa -out developer_key.pem 4096
           openssl pkcs8 -topk8 -inform PEM -outform DER \
             -in developer_key.pem -out developer_key.der -nocrypt
@@ -93,6 +95,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # Keep the output directory owned by the runner before the root Docker compiler writes files.
+          mkdir -p out
           openssl genrsa -out developer_key.pem 4096
           openssl pkcs8 -topk8 -inform PEM -outform DER \
             -in developer_key.pem -out developer_key.der -nocrypt
@@ -144,6 +148,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # Keep the output directory owned by the runner before the root Docker compiler writes files.
+          mkdir -p out
           openssl genrsa -out developer_key.pem 4096
           openssl pkcs8 -topk8 -inform PEM -outform DER \
             -in developer_key.pem -out developer_key.der -nocrypt
