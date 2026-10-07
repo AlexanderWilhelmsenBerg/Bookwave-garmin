@@ -1,5 +1,13 @@
 # BookWave Garmin — Delivery Plan
 
+**Current Phase 2 implementation (2026-10-07):** foreground phone transport, negotiated ordered
+snapshot delivery, durable clear/snapshot acknowledgements and bounded reconnect handling are
+implemented. See [the shared wire contract](docs/transport-contract.md). Build/test-compilation and physical acceptance
+are recorded separately in the Phase 2 inventory. Commands, reconciliation/Force sync,
+complications and other Garmin surfaces remain deferred. Earlier Phase 1 descriptions below
+describe the persisted model and its original acceptance, not the current transport scope.
+
+
 **Reconciled:** 2026-10-07 against Garmin main `d8de6fb8` and Android bridge candidate `6239a148`.
 [Cross-repository boundaries and dependencies](docs/reconciliation.md).
 

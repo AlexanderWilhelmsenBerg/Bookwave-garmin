@@ -24,7 +24,7 @@ class SnapshotStore {
         _lastError = null;
 
         var stored = Storage.getValue(SnapshotStoreState.STORAGE_KEY);
-        if (stored == null) {
+        if (stored == null || (stored instanceof Lang.Dictionary && stored["redacted"] == true)) {
             _loadStatus = SnapshotStoreState.LOAD_NEVER_SYNCED;
             return null;
         }
@@ -70,12 +70,15 @@ class SnapshotStore {
     }
 
     function clear() {
-        try {
-            Storage.deleteValue(SnapshotStoreState.STORAGE_KEY);
-        } catch (ex) {
-            // A missing value or unavailable store already satisfies the privacy intent.
-        }
         _loadStatus = SnapshotStoreState.LOAD_NEVER_SYNCED;
         _lastError = null;
+        try {
+            // One atomic replacement removes metadata. A tombstone remains safe after process/watch restart.
+            Storage.setValue(SnapshotStoreState.STORAGE_KEY, {"redacted" => true});
+            return true;
+        } catch (ex) {
+            _lastError = "storage_clear_failed";
+            return false;
+        }
     }
 }

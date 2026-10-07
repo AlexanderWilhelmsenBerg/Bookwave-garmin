@@ -5,6 +5,9 @@ class BookWaveCompanionApp extends Application.AppBase {
     var _snapshot;
     var _loadStatus;
     var _loadError;
+    var _view = null;
+    var _transport = null;
+    var _connection = "Stored; waiting for phone";
 
     function initialize() {
         AppBase.initialize();
@@ -18,13 +21,31 @@ class BookWaveCompanionApp extends Application.AppBase {
         _snapshot = store.load();
         _loadStatus = store.getLoadStatus();
         _loadError = store.getLastError();
+        _transport = new PhoneTransport(self, store);
+        _transport.start();
     }
 
     function onStop(state) {
-        // Phase 1 has no background work or transport to stop.
+        if (_transport != null) { _transport.stop(); }
+        _transport = null;
     }
 
     function getInitialView() {
-        return [new CompanionView(_snapshot, _loadStatus, _loadError)];
+        _view = new CompanionView(_snapshot, _loadStatus, _loadError);
+        _view.setConnection(_connection);
+        return [_view];
+    }
+
+    function transportStatus(value) {
+        _connection = value;
+        if (_view != null) { _view.setConnection(value); WatchUi.requestUpdate(); }
+    }
+
+    function transportSnapshot(snapshot, connection) {
+        _snapshot = snapshot;
+        _loadStatus = snapshot == null ? SnapshotStoreState.LOAD_NEVER_SYNCED : SnapshotStoreState.LOAD_VALID;
+        _loadError = null;
+        if (_view != null) { _view.setSnapshot(snapshot, _loadStatus); }
+        transportStatus(connection);
     }
 }

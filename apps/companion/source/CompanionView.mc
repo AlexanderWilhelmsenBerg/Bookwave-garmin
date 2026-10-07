@@ -6,6 +6,7 @@ class CompanionView extends WatchUi.View {
     const CHAPTER_LIMIT = 42;
     const AUTHOR_LIMIT = 38;
 
+    var _connection = "Stored; waiting for phone";
     var _snapshot;
     var _loadStatus;
     var _loadError;
@@ -16,6 +17,9 @@ class CompanionView extends WatchUi.View {
         _loadStatus = loadStatus;
         _loadError = loadError;
     }
+
+    function setConnection(value) { _connection = value; }
+    function setSnapshot(value, status) { _snapshot = value; _loadStatus = status; _loadError = null; }
 
     function onUpdate(dc) {
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
@@ -41,14 +45,14 @@ class CompanionView extends WatchUi.View {
 
     function drawNeverSyncedState(dc, cx, height) {
         drawCentered(dc, cx, height * 36 / 100, Graphics.FONT_MEDIUM, "No current book");
-        drawCentered(dc, cx, height * 48 / 100, Graphics.FONT_SMALL, "Never synced");
-        drawCentered(dc, cx, height * 62 / 100, Graphics.FONT_SMALL, "Waiting for BookWave");
+        drawCentered(dc, cx, height * 48 / 100, Graphics.FONT_SMALL, "No playback snapshot");
+        drawCentered(dc, cx, height * 62 / 100, Graphics.FONT_XTINY, _connection);
     }
 
     function drawInvalidState(dc, cx, height) {
         drawCentered(dc, cx, height * 34 / 100, Graphics.FONT_MEDIUM, "Stored state invalid");
         drawCentered(dc, cx, height * 47 / 100, Graphics.FONT_SMALL, "Playback data was discarded");
-        drawCentered(dc, cx, height * 61 / 100, Graphics.FONT_SMALL, "Waiting for BookWave");
+        drawCentered(dc, cx, height * 61 / 100, Graphics.FONT_XTINY, _connection);
 
         if (_loadError != null) {
             drawCentered(dc, cx, height * 72 / 100, Graphics.FONT_XTINY, clip(_loadError, 34));
@@ -65,7 +69,7 @@ class CompanionView extends WatchUi.View {
         drawCentered(dc, cx, height * 61 / 100, Graphics.FONT_SMALL, PlaybackFormat.progress(_snapshot));
 
         drawCentered(dc, cx, height * 73 / 100, Graphics.FONT_XTINY, stateLabel);
-        drawCentered(dc, cx, height * 81 / 100, Graphics.FONT_SMALL, "Waiting for phone");
+        drawCentered(dc, cx, height * 81 / 100, Graphics.FONT_XTINY, _connection);
         drawCentered(dc, cx, height * 90 / 100, Graphics.FONT_XTINY, PlaybackFormat.recency(_snapshot));
     }
 

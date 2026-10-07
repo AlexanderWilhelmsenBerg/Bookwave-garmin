@@ -11,17 +11,21 @@ fail() {
 [[ -f "$manifest" ]] || fail "Companion manifest is missing."
 
 grep -q 'type="watch-app"' "$manifest" \
-  || fail "Phase 1 Companion must remain a normal Connect IQ Device App (watch-app)."
+  || fail "Companion Companion must remain a normal Connect IQ Device App (watch-app)."
 
 grep -q '<iq:product id="fenix843mm"' "$manifest" \
-  || fail "fenix843mm target is missing from the Phase 1 manifest."
+  || fail "fenix843mm target is missing from the Companion manifest."
 
 grep -q '<iq:product id="fenix847mm"' "$manifest" \
-  || fail "fenix847mm target is missing from the Phase 1 manifest."
+  || fail "fenix847mm target is missing from the Companion manifest."
 
-if grep -q '<iq:uses-permission' "$manifest"; then
-  fail "Phase 1 must not request Garmin permissions; transport/network features are out of scope."
-fi
+"${PYTHON:-python3}" -B - <<'PY'
+import xml.etree.ElementTree as ET
+ns = {"iq": "http://www.garmin.com/xml/connectiq"}
+manifest = ET.parse("apps/companion/manifest.xml")
+permissions = [item.attrib.get("id") for item in manifest.findall(".//iq:uses-permission", ns)]
+assert permissions == ["Communications"], "Only the Phase 2 phone transport permission is allowed"
+PY
 
 for forbidden_dir in apps/watchface apps/run-data-field apps/audio-provider; do
   if [[ -e "$forbidden_dir" ]]; then
@@ -39,4 +43,4 @@ if grep -RInE --include='*.mc' \
   fail "Potential credential-bearing field found in Garmin source."
 fi
 
-echo "Phase 1 repository guardrails PASS"
+echo "Companion repository guardrails PASS"

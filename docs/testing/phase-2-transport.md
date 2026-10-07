@@ -1,7 +1,7 @@
 # Phase 2 transport acceptance inventory
 
 **Classification:** Planned tests, not executed evidence. **Created:** 2026-10-07.
-Source boundary: Garmin main `d8de6fb8` has no transport; Android candidate `6239a148` is unmerged.
+Source boundary: Phase 2 transport is implemented in the linked Android/Garmin integration PRs. Physical acceptance below remains pending; CI does not imply a watch PASS.
 Track [#3](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/3); Phase 1 [#2](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/2) retains its own acceptance.
 
 | Case | Required evidence | Status |
@@ -24,4 +24,4 @@ Automate functional checks where possible; request owner input only for visual/s
 
 Commands, multi-source reconciliation/Force sync and offline Audio Provider are later-phase matrices.
 Do not use projection `updatedAt` as a listening-event conflict timestamp without that design.
-This plan adds no runtime code, transport permission or physical PASS.
+Phase 2 adds the foreground receiver and Communications permission. No physical PASS is inferred.

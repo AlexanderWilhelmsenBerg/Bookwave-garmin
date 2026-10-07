@@ -1,5 +1,13 @@
 # Cross-repository reconciliation
 
+**Current Phase 2 implementation (2026-10-07):** foreground phone transport, negotiated ordered
+snapshot delivery, durable clear/snapshot acknowledgements and bounded reconnect handling are
+implemented. See [the shared wire contract](transport-contract.md). Build/test-compilation and physical acceptance
+are recorded separately in the Phase 2 inventory. Commands, reconciliation/Force sync,
+complications and other Garmin surfaces remain deferred. Earlier Phase 1 descriptions below
+describe the persisted model and its original acceptance, not the current transport scope.
+
+
 **Classification:** Current dependency/status map; internal Garmin sequencing stays in `../plan.md`.
 **Snapshot:** 2026-10-07. No runtime work or physical tests are started by this reconciliation.
 
