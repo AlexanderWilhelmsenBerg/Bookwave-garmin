@@ -71,6 +71,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p out
+          if [ "${{ matrix.app }}" = "audio-provider" ]; then
+            cp apps/audio-provider/third-party/WATCHSHELF-LICENSE.txt out/WATCHSHELF-LICENSE.txt
+            cp apps/audio-provider/third-party/PROVENANCE.md out/PROVENANCE.md
+          fi
           printf 'source=%s\ntarget=%s\nsigning=temporary-ci-development-key\n' "${{ github.sha }}" "${{ matrix.device }}" > out/BUILD-INFO.txt
           openssl pkey -inform DER -in developer_key.der -pubout | openssl dgst -sha256 >> out/BUILD-INFO.txt
           find out -maxdepth 1 -type f \( -name '*.prg' -o -name '*.iq' \) -exec sha256sum {} + >> out/BUILD-INFO.txt
@@ -124,6 +128,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p out
+          if [ "${{ matrix.app }}" = "audio-provider" ]; then
+            cp apps/audio-provider/third-party/WATCHSHELF-LICENSE.txt out/WATCHSHELF-LICENSE.txt
+            cp apps/audio-provider/third-party/PROVENANCE.md out/PROVENANCE.md
+          fi
           printf 'source=%s\ntarget=%s\nsigning=temporary-ci-development-key\n' "${{ github.sha }}" "fenix847mm-unit-tests" > out/BUILD-INFO.txt
           openssl pkey -inform DER -in developer_key.der -pubout | openssl dgst -sha256 >> out/BUILD-INFO.txt
           find out -maxdepth 1 -type f \( -name '*.prg' -o -name '*.iq' \) -exec sha256sum {} + >> out/BUILD-INFO.txt
@@ -176,6 +184,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p out
+          if [ "${{ matrix.app }}" = "audio-provider" ]; then
+            cp apps/audio-provider/third-party/WATCHSHELF-LICENSE.txt out/WATCHSHELF-LICENSE.txt
+            cp apps/audio-provider/third-party/PROVENANCE.md out/PROVENANCE.md
+          fi
           printf 'source=%s\ntarget=%s\nsigning=temporary-ci-development-key\n' "${{ github.sha }}" "connect-iq-package" > out/BUILD-INFO.txt
           openssl pkey -inform DER -in developer_key.der -pubout | openssl dgst -sha256 >> out/BUILD-INFO.txt
           find out -maxdepth 1 -type f \( -name '*.prg' -o -name '*.iq' \) -exec sha256sum {} + >> out/BUILD-INFO.txt

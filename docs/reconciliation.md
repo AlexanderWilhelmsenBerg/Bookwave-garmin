@@ -48,3 +48,9 @@ PR5 checks run37627686906 pass both fenix targets, test-enabled compilation and 
 callback typing correction. Those six transport/storage methods were compile-only at PR5; current execution is recorded in the provider delivery log.
 Acceptance issues #2/#3, selected provider #7, future face feed #8 and Android#119 remain open. Garmin does not block Android release or outrank
 Android reliability. The earlier candidate-only reconciliation is superseded by this implementation.
+
+## Provider delivery evidence — 2026-10-08
+
+[PR10](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/pull/10) is merged as `19cc9a67`; all nine PR checks and main CI37699273330 pass. Provider download artifacts now also retain the adapted engine's MIT license and provenance alongside the PRG/IQ and build identity. The matching [Android PR243](https://github.com/AlexanderWilhelmsenBerg/Audiobookshelf-Manager-Claude/pull/243) has full strict local verification passing: 1024 tasks, all37 Garmin and38 migration tests pass with actual-source generation reversion proof. GitHub records subsequent PR/main CI and delivery status.
+
+Final native RNE reruns stalled in the local launcher; the earlier49 passing tests do not establish final-source acceptance. The additional failed-read safety test is compiled, not executed. All hardware gates remain NOT RUN. Use [the installation guide](install-for-testing.md) and recorded binary/signing identity before testing.

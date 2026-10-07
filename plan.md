@@ -743,3 +743,9 @@ As of the 2026-10-07 reconciliation:
 
 No phase is accepted by compilation alone. Android reliability remains its own primary roadmap lane;
 this reconciliation does not begin new runtime implementation or a physical test campaign.
+
+## Provider delivery evidence — 2026-10-08
+
+[PR10](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/pull/10) is merged as `19cc9a67`; all nine PR checks and main CI37699273330 pass. Provider download artifacts now also retain the adapted engine's MIT license and provenance alongside the PRG/IQ and build identity. The matching [Android PR243](https://github.com/AlexanderWilhelmsenBerg/Audiobookshelf-Manager-Claude/pull/243) has full strict local verification passing: 1024 tasks, all37 Garmin and38 migration tests pass with actual-source generation reversion proof. GitHub records subsequent PR/main CI and delivery status.
+
+Final native RNE reruns stalled in the local launcher; the earlier49 passing tests do not establish final-source acceptance. The additional failed-read safety test is compiled, not executed. All hardware gates remain NOT RUN. Use [the installation guide](docs/install-for-testing.md) and recorded binary/signing identity before testing.
