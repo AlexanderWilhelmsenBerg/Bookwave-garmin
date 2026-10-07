@@ -25,3 +25,13 @@ Automate functional checks where possible; request owner input only for visual/s
 Commands, multi-source reconciliation/Force sync and offline Audio Provider are later-phase matrices.
 Do not use projection `updatedAt` as a listening-event conflict timestamp without that design.
 Phase 2 adds the foreground receiver and Communications permission. No physical PASS is inferred.
+
+## Automated implementation evidence — 2026-10-07
+
+PR5 run37627686906 passes guardrails, fenix843mm/fenix847mm compilations, Run No Evil method
+compilation and package export after correcting callback types. Five new methods cover strict envelope
+types, privacy-clear ordering, stale/duplicate/old-stream rejection, epoch precision/unknown fields and
+durable-clear restore. These methods are compiled but execution is NOT RUN. All physical rows above
+remain NOT RUN; no owner hardware was used during this delivery. Android's bridge delivery log owns
+its executed JVM/Media3 regressions and forced gate. Later CI/source records supersede these head-specific
+build results without promoting missing physical evidence to PASS.

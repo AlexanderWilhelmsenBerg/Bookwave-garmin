@@ -1,5 +1,9 @@
 # Phase 1 Companion Testing
 
+**Historical Phase 1 acceptance inventory:** original permission/build descriptions below describe PR1.
+Phase 2 now adds Communications and foreground transport through PR5. The original G-01 physical
+results remain NOT RUN; see [G-02](phase-2-transport.md) for current transport tests.
+
 ## Verification status
 
 This document defines the reproducible Phase 1 verification path.

@@ -8,13 +8,13 @@ complications and other Garmin surfaces remain deferred. Earlier Phase 1 descrip
 describe the persisted model and its original acceptance, not the current transport scope.
 
 
-## Status
+## Persisted model status
 
 Phase 1 defines the conceptual playback contract and the Garmin persisted representation.
 
-**No phone↔watch wire encoding is finalized in Phase 1.**
+Phase 1 did not finalize wire encoding. Phase 2 now uses [the shared transport contract](transport-contract.md).
 
-Transport, acknowledgements, replay handling and capability negotiation belong to Phase 2.
+The Phase 2 document owns envelope/ack/replay/negotiation rules; the model rules below remain current.
 
 ## Conceptual PlaybackSnapshot
 
@@ -136,27 +136,9 @@ It must never contain:
 
 The persistence layer exposes a clear operation so future profile-lock/privacy messages can remove previously stored private metadata before a replacement safe state is accepted.
 
-## Phase 2 wire contract — intentionally undecided
+## Phase 2 wire contract
 
-Phase 2 must decide and document:
-
-- Connect IQ Mobile SDK payload encoding;
-- request/response envelope;
-- capability/version handshake;
-- acknowledgement behavior;
-- replay/stale-message treatment;
-- connection state;
-- clear/redaction message;
-- maximum transport payload size.
-
-Those decisions are not preempted here.
-
-
-## Cross-repository proposal — 2026-10-07
-
-Android candidate `6239a148` proposes a major1 dictionary envelope (`v`, `t`, `id`, optional `r`,
-optional `ts`, `p`) and hello/hello_ack, snapshot/snapshot_ack, state_request, clear_state/clear_ack,
-error messages. This is candidate inventory, **not** a finalized/released wire contract or Garmin receiver.
-The bounded persisted fields above remain authoritative for Phase 1. [Reconciliation](reconciliation.md)
-and [#3](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/3) track common fixtures, ordering/correlation/ack/privacy rules and
-integer/timestamp precision before interoperability can be claimed. See [planned tests](testing/phase-2-transport.md).
+The [shared transport contract](transport-contract.md) finalizes v/t/id/r/ts/p plus watch nonce s and
+sequence n, negotiated ordered_state, clear-before-metadata and correlated durable acks. A Phase 1
+snapshot is the snapshot message payload, not its envelope. Read that document for lifecycle/retry and
+foreground limits. Physical interoperability is still tracked under [G-02 acceptance](testing/phase-2-transport.md).

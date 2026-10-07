@@ -45,7 +45,7 @@ Phase 1 Companion does **not** own phone transport, playback execution, reconcil
 - Android playback and Media3;
 - BookWave profile state and locks;
 - Audiobookshelf authentication/API access;
-- future Connect IQ Mobile SDK integration;
+- Connect IQ Mobile SDK integration in Android;
 - command execution;
 - automatic reconciliation and Force Sync policy.
 
@@ -57,7 +57,7 @@ WatchShelf remains the Garmin offline-audiobook engine during the initial BookWa
 
 BookWave Companion does not duplicate WatchShelf or store Audiobookshelf credentials.
 
-## Phase 1 physical layout
+## Current physical layout
 
 ```text
 apps/
@@ -122,10 +122,21 @@ This intentionally avoids spending the first slice on layout machinery. The view
 - playing vs paused stored snapshot;
 - waiting-for-phone/disconnected truth.
 
-Because phone transport does not exist in Phase 1, the Companion never claims that a phone is connected.
+The Companion reports recent accepted phone-state receipt or stored/waiting state. Foreground transport
+is stopped on app close; receipt is not proof of continuous connectivity or watch-local playback.
 
 ## Lifecycle
 
 `BookWaveCompanionApp.onStart()` restores persisted state before the initial view is requested.
 
-There is no background service, network polling, BLE loop, or timer in Phase 1. This keeps battery/network behavior effectively inert until Phase 2 introduces an explicit transport contract.
+There is no background service. Phase 2 has a foreground 30-second state-request timer and bounded
+phone delivery retries; the timer stops with the app. Physical BLE/battery measurements remain pending.
+
+## Phase 2 transport ownership and privacy
+
+BookWaveCompanionApp starts/stops PhoneTransport and updates CompanionView from accepted state.
+TransportCodec validates envelopes; TransportOrder enforces the current nonce, sequence and first clear.
+SnapshotCodec validates the payload; SnapshotStore atomically persists valid state or a redaction
+tombstone. Duplicate accepted messages resend the cached ack without writing twice. Clear failures
+redact the current view and return accepted:false; no durable-success claim follows a storage exception.
+The timer/receiver exists only in the foreground. See [the wire contract](transport-contract.md).
