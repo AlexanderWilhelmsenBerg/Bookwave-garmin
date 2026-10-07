@@ -4,11 +4,16 @@
 
 This document defines the reproducible Phase 1 verification path.
 
-Repository implementation does not imply simulator or physical-device acceptance. Those layers must be recorded separately.
+Merged source: `d8de6fb8`, PR #1. PR [37522590573](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/actions/runs/37522590573) and main
+[37534424183](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/actions/runs/37534424183) PASS guardrails, both target compilations,
+test-enabled compilation and package export. **Run No Evil methods, simulator and physical watch tests
+remain NOT RUN** under [#2](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/2). CI warnings for icon scaling/container inference
+remain visible. CI generates temporary signing keys; these artifacts do not establish a stable store identity.
+Repository implementation does not imply simulator or physical-device acceptance.
 
 ## Toolchain
 
-Current upstream Garmin documentation lists Connect IQ SDK **9.2.0** as the latest SDK as of 2026-08-25.
+The recorded Phase 1 CI toolchain is Connect IQ SDK **9.2.0**. This reconciliation does not perform a new upstream SDK comparison; revalidate stable tooling before a future upgrade.
 
 Phase 1 requires:
 
@@ -188,17 +193,17 @@ Do not mark physical acceptance from simulator evidence.
 
 All items remain **UNVERIFIED** until tested on the actual fēnix 8.
 
-- [ ] UNVERIFIED — install/sideload succeeds.
-- [ ] UNVERIFIED — application launches.
-- [ ] UNVERIFIED — never-synced screen is correct.
-- [ ] UNVERIFIED — fixture snapshot renders.
-- [ ] UNVERIFIED — long book/title renders acceptably.
-- [ ] UNVERIFIED — >24-hour duration renders correctly.
-- [ ] UNVERIFIED — app close/reopen restores the last valid snapshot.
-- [ ] UNVERIFIED — reboot/restart persistence behavior is understood.
-- [ ] UNVERIFIED — malformed persisted state cannot brick/crash the app.
-- [ ] UNVERIFIED — UI remains responsive.
-- [ ] UNVERIFIED — no unexpected battery/network activity occurs.
+- [ ] G-01-01 (sideload) — NOT RUN — install/sideload succeeds.
+- [ ] G-01-02 (launch) — NOT RUN — application launches.
+- [ ] G-01-03 (never-synced) — NOT RUN — never-synced screen is correct.
+- [ ] G-01-04 (fixture) — NOT RUN — fixture snapshot renders.
+- [ ] G-01-05 (long-title) — NOT RUN — long book/title renders acceptably.
+- [ ] G-01-06 (long-duration) — NOT RUN — >24-hour duration renders correctly.
+- [ ] G-01-07 (reopen) — NOT RUN — app close/reopen restores the last valid snapshot.
+- [ ] G-01-08 (restart) — NOT RUN — reboot/restart persistence behavior is understood.
+- [ ] G-01-09 (malformed) — NOT RUN — malformed persisted state cannot brick/crash the app.
+- [ ] G-01-10 (responsiveness) — NOT RUN — UI remains responsive.
+- [ ] G-01-11 (battery) — NOT RUN — no unexpected battery/network activity occurs.
 
 Record physical findings here with watch model, firmware, SDK version, build SHA and result.
 
