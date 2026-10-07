@@ -51,6 +51,13 @@ class PhoneTransport {
         if (!_running) { return; }
         if (_lastReceived == null || System.getTimer() - _lastReceived > 60000) {
             _owner.transportStatus("Stored; waiting for phone");
+            if (_order.stream != null) {
+                // A fresh nonce recovers a stale/reordered handshake after the receipt lease expires.
+                _helloId = nextId();
+                _order = new TransportOrder();
+                _lastAck = null;
+                _lastReceived = null;
+            }
         }
         if (_order.stream == null) { sendHello(); }
         else { send(envelope("state_request", {}, null)); }
@@ -66,7 +73,12 @@ class PhoneTransport {
     function receive(message as Communications.PhoneAppMessage) as Void {
         if (!_running) { return; }
         var value = TransportCodec.decode(message.data);
-        if (value == null) { return; }
+        if (value == null) {
+            if (message.data instanceof Lang.Dictionary && message.data["v"] instanceof Lang.Number && message.data["v"] != 1) {
+                _owner.transportStatus("Phone protocol incompatible");
+            }
+            return;
+        }
         var type = value["t"];
         if (type == "hello") {
             _helloId = nextId();
