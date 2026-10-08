@@ -67,6 +67,17 @@ boundary when changing development signing identities. No simulator or physical 
 
 ## Provider delivery evidence — 2026-10-08
 
+**Latest physical feedback and fixes:** [PR16](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/pull/16)
+and matching [Android PR247](https://github.com/AlexanderWilhelmsenBerg/Audiobookshelf-Manager-Claude/pull/247)
+are merged after passed CI. Native production/test compiles and guardrails pass; Android strict
+verification passes with all645 app debug tests and actual-source reversion evidence. Owner-reported
+phone setup, immediate Download and clipped errors failed; on-watch catalogue access worked. Current
+diagnostics separate Garmin -1002 from schema -20001, wrap/page errors and identify PHONE/Audio with
+button help. Actual download cause/success remains unverified. Use the retained-key testing ZIP for
+repeat USB upgrades; [WD01–08 and current findings](docs/testing/watch-setup-diagnostics.md) remain open.
+
+The original provider-delivery evidence below is retained for provenance.
+
 [PR10](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/pull/10) is merged as `19cc9a67`; all nine PR checks and main CI37699273330 pass. Provider download artifacts now also retain the adapted engine's MIT license and provenance alongside the PRG/IQ and build identity. The matching [Android PR243](https://github.com/AlexanderWilhelmsenBerg/Audiobookshelf-Manager-Claude/pull/243) has full strict local verification passing: 1024 tasks, all37 Garmin and38 migration tests pass with actual-source generation reversion proof. GitHub records subsequent PR/main CI and delivery status.
 
-Final native RNE reruns stalled in the local launcher; the earlier49 passing tests do not establish final-source acceptance. The additional failed-read safety test is compiled, not executed. All hardware gates remain NOT RUN. Use [the installation guide](docs/install-for-testing.md) and recorded binary/signing identity before testing.
+Final native RNE reruns stalled in the local launcher; the earlier49 passing tests do not establish final-source acceptance. The additional failed-read safety test and new diagnostics tests are compiled, not executed. Hardware acceptance remains open; the current report above supersedes blanket NOT RUN for exercised paths. Use [the installation guide](docs/install-for-testing.md) and recorded binary/signing identity before testing.
