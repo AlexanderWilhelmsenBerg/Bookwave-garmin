@@ -1,5 +1,13 @@
 # BookWave Garmin
 
+**2026-10-08 duration/layout follow-up:** The owner now reports immediate `-20001`,
+`files.duration`, and clipped Companion text. Garmin numeric admission and full measured pagination,
+BookWave theme/button cues, Android HTTPS defaults and remembered successful Sidecar addresses are
+implemented. Actual watch download/visual acceptance remains open. Password-free signed-in setup is
+pending exact destination/credential-egress approval and Sidecar integration; no running Sidecar has
+changed. [Current implementation and tests](docs/testing/watch-layout-and-duration.md).
+
+
 **Provider/control/feed implementation — 2026-10-08:** BookWave Audio is a separate native
 Audio Content Provider using existing WatchShelf Sidecar. Android now owns Room-backed device controls,
 durable requests, reported inventory and imported original listening events. Companion PHONE and

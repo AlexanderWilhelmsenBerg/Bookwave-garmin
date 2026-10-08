@@ -12,7 +12,7 @@ module SidecarCodec {
             var file=value["files"][i];
             if(!(file instanceof Lang.Dictionary)){return "files.entry";}
             if(!ProviderPolicy.text(file["ino"],128)){return "files.ino";}
-            if(!numeric(file["duration"]) || file["duration"]<=0){return "files.duration";}
+            if(!duration(file["duration"])){return "files.duration";}
         }
         return "files.response";
     }
@@ -35,13 +35,32 @@ module SidecarCodec {
         }
         return true;
     }
-    function numeric(value) {return (value instanceof Lang.Number) || (value instanceof Lang.Float);}
+    function numeric(value) {
+        return (value instanceof Lang.Number) || (value instanceof Lang.Long) ||
+            (value instanceof Lang.Float) || (value instanceof Lang.Double);
+    }
+    // Bound arithmetic/chunk work as well as rejecting NaN/infinity and non-positive audio.
+    function duration(value) {return numeric(value) && value>0 && value<=31536000;}
+    function durationIssue(value) {
+        if(value==null){return "Missing duration";}
+        if(!numeric(value)){return "Expected numeric seconds";}
+        if(value<=0){return "Duration must be positive";}
+        return "Duration outside supported range";
+    }
+    function reason(kind,value) {
+        if(!kind.equals("files") || !(value instanceof Lang.Dictionary) || !(value["files"] instanceof Lang.Array)){return null;}
+        for(var i=0;i<value["files"].size();i++) {
+            var file=value["files"][i];
+            if(file instanceof Lang.Dictionary && !duration(file["duration"])){return durationIssue(file["duration"]);}
+        }
+        return null;
+    }
     function progress(value) {
         if(!(value instanceof Lang.Dictionary)){return false;}
         if(value.size()==0){return true;} // Legitimate no-progress response.
         return numeric(value["currentTime"]) && value["currentTime"]>=0 &&
             numeric(value["duration"]) && value["duration"]>=0 &&
-            (value["lastUpdate"] instanceof Lang.Number) && value["lastUpdate"]>=0 &&
+            ((value["lastUpdate"] instanceof Lang.Number) || (value["lastUpdate"] instanceof Lang.Long)) && value["lastUpdate"]>=0 &&
             (value["isFinished"] instanceof Lang.Boolean);
     }
     function files(value) {
@@ -51,8 +70,7 @@ module SidecarCodec {
         for(var i=0;i<value["files"].size();i++) {
             var file=value["files"][i];
             if(!(file instanceof Lang.Dictionary) || !ProviderPolicy.text(file["ino"],128) ||
-                !((file["duration"] instanceof Lang.Number)||(file["duration"] instanceof Lang.Float)) ||
-                file["duration"]<=0){return false;}
+                !duration(file["duration"])){return false;}
         }
         return true;
     }

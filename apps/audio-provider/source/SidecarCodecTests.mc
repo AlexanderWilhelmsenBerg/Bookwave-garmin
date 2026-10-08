@@ -1,5 +1,22 @@
 using Toybox.Test;
 (:test)
+function sidecarAllJsonNumericDurations(logger) {
+    // Phone and Wi-Fi JSON decoders may choose different numeric representations.
+    var values=[3600,3600l,1454.18449,1454.18449d];
+    for(var i=0;i<values.size();i++) {
+        var reply={"title"=>"Fixture","files"=>[{"ino"=>"1","duration"=>values[i]}]};
+        Test.assert(SidecarCodec.files(reply));
+        Test.assert(SidecarCodec.failure("files",reply)==null);
+        Test.assert(Chunks.total([values[i]])>0);
+    }
+    var invalid=[null,"3600",false,0,0l,-1,-1.0d,1.0e100d];
+    for(var j=0;j<invalid.size();j++) {
+        Test.assert(!SidecarCodec.files({"title"=>"Fixture","files"=>[{"ino"=>"1","duration"=>invalid[j]}]}));
+    }
+    return true;
+}
+
+(:test)
 function sidecarFilesRequiredFields(logger) {
     var valid={"title"=>"Fixture","files"=>[{"ino"=>"1","duration"=>3600}],"future"=>true};
     Test.assert(SidecarCodec.files(valid));

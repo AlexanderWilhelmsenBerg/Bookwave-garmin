@@ -35,7 +35,7 @@ class BookWaveCompanionApp extends Application.AppBase {
     function getInitialView() {
         _view = new CompanionView(_snapshot, _loadStatus, _loadError);
         _view.setConnection(_connection);
-        return [_view,new CompanionDelegate()];
+        return [_view,new CompanionDelegate(_view)];
     }
 
     function transportStatus(value) {

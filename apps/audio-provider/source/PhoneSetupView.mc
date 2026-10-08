@@ -21,13 +21,12 @@ class PhoneSetupView extends WatchUi.View {
     var page=0; var pages=1; var message="";
     function initialize(){View.initialize();}
     function onUpdate(dc) {
-        dc.setColor(Graphics.COLOR_WHITE,Graphics.COLOR_BLACK);dc.clear();
         var value=ProviderSetupState.status;
         if(!message.equals(value)){page=0;message=value;}
-        dc.drawText(dc.getWidth()/2,dc.getHeight()*12/100,Graphics.FONT_XTINY,"BOOKWAVE AUDIO",Graphics.TEXT_JUSTIFY_CENTER);
-        var footer=AbsApi.isConfigured() && ProviderControl.setup==null?"START: library | BACK":"BACK: exit";
-        pages=RoundText.draw(dc,value,page,footer);
-        dc.drawText(dc.getWidth()/2,dc.getHeight()*85/100,Graphics.FONT_XTINY,BuildLabel.VALUE,Graphics.TEXT_JUSTIFY_CENTER);
+        var select=AbsApi.isConfigured() && ProviderControl.setup==null?"Books":"";
+        WatchTheme.frame(dc,"BookWave Audio",select,"Back",false);WatchTheme.headphones(dc);
+        pages=WatchTheme.page(dc,value+"\n"+BuildLabel.VALUE,page,"WATCH AUDIO","Back");
+        if(pages>1){WatchTheme.framePageCues(dc);}
     }
     function move(delta){page+=delta;if(page<0){page=0;}if(page>=pages){page=pages-1;}WatchUi.requestUpdate();return true;}
 }

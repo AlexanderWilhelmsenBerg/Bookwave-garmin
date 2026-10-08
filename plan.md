@@ -1,5 +1,13 @@
 # BookWave Garmin — Delivery Plan
 
+**2026-10-08 duration/layout follow-up:** The owner now reports immediate `-20001`,
+`files.duration`, and clipped Companion text. Garmin numeric admission and full measured pagination,
+BookWave theme/button cues, Android HTTPS defaults and remembered successful Sidecar addresses are
+implemented. Actual watch download/visual acceptance remains open. Password-free signed-in setup is
+pending exact destination/credential-egress approval and Sidecar integration; no running Sidecar has
+changed. [Current implementation and tests](docs/testing/watch-layout-and-duration.md).
+
+
 **2026-10-08 physical feedback:** Phone setup, immediate Download admission and error readability failed
 on the owner's watch; on-watch login/catalogue access worked. Diagnostics and button guidance are
 implemented; actual download cause/success remains unverified. [Current findings and WD retests](docs/testing/watch-setup-diagnostics.md)

@@ -27,6 +27,9 @@ jobs:
       - name: Validate app boundaries and contracts
         run: bash tools/ci/guardrails.sh
 
+      - name: Verify signed-in Sidecar session exchange
+        run: node --test sidecar/*.test.mjs
+
   compile:
     name: Compile ${{ matrix.app }} (${{ matrix.device }})
     needs: guardrails
