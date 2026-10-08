@@ -16,10 +16,9 @@ class ErrorView extends WatchUi.View {
     }
 
     function onUpdate(dc) {
-        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
-        dc.clear();
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-        pages=RoundText.draw(dc,mMessage,page,"BACK: return");
+        WatchTheme.frame(dc,"BookWave Audio","","Back",false);WatchTheme.headphones(dc);
+        pages=WatchTheme.page(dc,mMessage,page,"WATCH AUDIO","Back");
+        if(pages>1){WatchTheme.framePageCues(dc);}
     }
     function move(delta) {
         page+=delta;

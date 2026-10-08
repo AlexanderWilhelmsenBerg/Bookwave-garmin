@@ -46,6 +46,7 @@ module Errors {
         var text="Book details\n"+message(Rez.Strings.errDetail,code);
         if(code==SidecarStatus.INVALID_RESPONSE && data instanceof Toybox.Lang.Dictionary) {
             text+="\nField: "+data["field"];
+            if(data["reason"] instanceof Toybox.Lang.String){text+="\n"+data["reason"];}
         }
         return text;
     }

@@ -12,6 +12,10 @@ using Toybox.System;
 // stay fully internal) and serves lean lists + on-demand audio chunks. Auth is the
 // Opaque Sidecar session obtained at login, passed as ?token=.
 module AbsApi {
+    // Validate a phone-exchanged opaque session before committing it to watch storage.
+    function validateSession(server,session,callback) {
+        Communications.makeWebRequest(server+"/libraries",{"token"=>session},getOptions(),callback);
+    }
 
     // ---- config accessors (never crash if a setting is unset) --------------
     // Config comes from EITHER on-watch login (Application.Storage - works for a

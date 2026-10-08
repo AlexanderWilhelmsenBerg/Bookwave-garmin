@@ -20,6 +20,9 @@ module ProviderPolicy {
     function setup(value) {
         return validUrl(value["url"]) && text(value["user"],128) && text(value["password"],256);
     }
+    function sessionSetup(value) {
+        return validUrl(value["url"]) && text(value["user"],128) && validSession(value["session"]);
+    }
     function validSession(value) {
         if (!text(value,36) || value.length() != 36) { return false; }
         for (var i=0;i<36;i++) {

@@ -16,7 +16,8 @@ profile and profile-generation changes fail closed. Incompatible majors are not 
 | hello | configured/paired/pairing booleans and advertised allowlisted capabilities; no media metadata |
 | pair + six-character code | explicit Accept pairing / Cancel Menu2 before first binding; fresh empty providers may pair before Sidecar login; same-profile retry replaces the pending code; expires after 120 seconds; CONFIRM_ON_WATCH is not completed pairing |
 | cancel_pair | cancels only a pending request for the captured profile; does not unbind accepted pairing |
-| setup + url/user/password | advertised capability; bound, unlocked/authorized profile+launch nonce only; transient HTTPS Sidecar health/login; final result reports success only after opaque session storage |
+| setup_session + url/user/session | additive advertised capability; transient opaque UUID only, no ABS token/password; same profile/nonce/account anchor, health and authenticated libraries validate before storage; phone exchange not delivered pending approval |
+| setup + url/user/password (legacy) | advertised capability; bound, unlocked/authorized profile+launch nonce only; transient HTTPS Sidecar health/login; final result reports success only after opaque session storage |
 | authorize / redact | matching bound profile only; redact clears every private feed value and blocks inventory/events/download/sync until authorized |
 | download + b | server book ID, 128 chars; actual Sidecar files validation/native queue acceptance required; duplicate existing jobs are idempotent |
 | inventory + offset | one row per bounded sequential page; offset, rows, more, source observation at, successful native synced timestamp and completed/failed sync request IDs |
@@ -81,3 +82,16 @@ fixed field names and setup reason INCOMPATIBLE_SIDECAR (major-v1 additive reaso
 show a generic failure). No private response values enter diagnostics. A wrong destination or
 proxy HTML response is a possible cause. Show actionable URL/proxy guidance and keep normal TLS checks.
 See [Garmin Communications](https://developer.garmin.com/connect-iq/api-docs/Toybox/Communications.html).
+
+## Duration and presentation follow-up — 2026-10-08
+
+`files.duration` admits positive Number/Long/Float/Double seconds up to31,536,000 per file; required
+strings/null/zero/negative/non-finite/out-of-range values remain invalid. Shared admission/diagnostics
+preserve fixed field/reason text without values. Actual failing JSON representation and successful
+hardware transfer are unverified. Android supplies HTTPS when omitted and saves the successful
+canonical destination per profile/device; no credential or setup request is durable.
+
+The owner supersedes one-time password entry as the desired phone UX: reuse the signed-in account.
+The [optional session extension](sidecar-session-extension.md) is a tested source candidate; actual
+Android token exchange and deployment await explicit destination/credential-egress authorization.
+Current legacy setup remains usable; the new watch capability does not imply phone delivery.

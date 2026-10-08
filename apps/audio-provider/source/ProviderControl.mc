@@ -63,7 +63,7 @@ module ProviderControl {
         if(type.equals("hello")) {
             var same=ProviderPolicy.text(profile(),64) && profile().equals(command["p"]);
             reply(command,"hello",{"configured"=>AbsApi.isConfigured(),"paired"=>same,"pairing"=>pairing(command["p"]),
-                "caps"=>["setup","cancel_pair","pair","authorize","download","inventory","events","ack_events","sync","redact"]});
+                "caps"=>["setup_session","setup","cancel_pair","pair","authorize","download","inventory","events","ack_events","sync","redact"]});
             return;
         }
         if(!ProviderPolicy.text(command["n"],64) || !command["n"].equals(nonce)){return;}
@@ -84,8 +84,8 @@ module ProviderControl {
             reply(command,"result",{"ok"=>true}); return;
         }
         if(Application.Storage.getValue(REDACTED)==true){error(command,"REDACTED");return;}
-        if(type.equals("setup")) {
-            if(!ProviderPolicy.setup(command)){error(command,"INVALID_SETUP");return;}
+        if(type.equals("setup") || type.equals("setup_session")) {
+            if(type.equals("setup_session")?!ProviderPolicy.sessionSetup(command):!ProviderPolicy.setup(command)){error(command,"INVALID_SETUP");return;}
             if(setup!=null){error(command,"BUSY");return;}
             setup=new ProviderSetupRequest(command);setup.begin();return;
         }
@@ -227,11 +227,13 @@ class ProviderPairDelegate extends WatchUi.Menu2InputDelegate {
 class ProviderSetupRequest {
     var command;
     var password;
+    var session;
     function initialize(raw) {
         command={"v"=>raw["v"],"t"=>raw["t"],"r"=>raw["r"],"p"=>raw["p"],"n"=>raw["n"],"url"=>raw["url"],"user"=>raw["user"]};
         password=raw["password"];
+        session=raw["session"];
     }
-    function cancel(){password=null;if(ProviderControl.setup==self){ProviderControl.setup=null;}}
+    function cancel(){password=null;session=null;if(ProviderControl.setup==self){ProviderControl.setup=null;}}
     function active(){return ProviderControl.setup==self && ProviderControl.running && ProviderPolicy.accepts(command,ProviderControl.profile(),ProviderControl.nonce) && Application.Storage.getValue(ProviderControl.REDACTED)!=true;}
     function begin(){
         if(!AbsApi.sameAccount(command["url"],command["user"])) {finish("ACCOUNT_MISMATCH");return;}
@@ -241,9 +243,18 @@ class ProviderSetupRequest {
     function health(code,data){
         if(!active()){cancel();return;}
         if(code!=200 || !(data instanceof Lang.String) || !data.equals("ok")){finish(code==200?"INCOMPATIBLE_SIDECAR":ProviderSetupState.loginError(code));return;}
+        if(command["t"].equals("setup_session")) {
+            ProviderSetupState.update("Checking signed-in account...");
+            AbsApi.validateSession(command["url"],session,method(:validated));return;
+        }
         ProviderSetupState.update("Signing in to Sidecar...");
         var secret=password;password=null;
         AbsApi.login(command["url"],command["user"],secret,method(:loggedIn));
+    }
+    function validated(code,data) {
+        if(!active()){cancel();return;}
+        if(code!=200 || !SidecarCodec.accepts("libraries",data)){finish(code==200?"INCOMPATIBLE_SIDECAR":ProviderSetupState.loginError(code));return;}
+        loggedIn(200,{"user"=>{"token"=>session}});
     }
     function loggedIn(code,data){
         if(!active()){cancel();return;}
