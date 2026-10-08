@@ -42,7 +42,7 @@ Transport exists only while the Companion is foreground. A disconnected watch re
 snapshot until reconnect; privacy deletion cannot arrive offline. New sessions require a nonce-bound
 durable clear before metadata. Failed storage is never acknowledged as accepted. Displayed playing state
 is the phone snapshot, not proof of watch-local audio. Projection updatedAt is not a durable listening-event
-timestamp for future reconciliation. Credentials/hosts are never transferred.
+timestamp for future reconciliation. Companion playback transport never transfers credentials/hosts. Separate, paired provider setup now accepts the owner-authorized one-time Sidecar URL/username/password; only the opaque session persists. See the [provider contract](provider-contract.md).
 
 PR5 checks run37627686906 pass both fenix targets, test-enabled compilation and package export after a
 callback typing correction. Those six transport/storage methods were compile-only at PR5; current execution is recorded in the provider delivery log.

@@ -44,3 +44,18 @@ loading/disabled/error/success feedback and switch semantics. No browser CSS is 
 
 Existing GD/GF/Companion acceptance remains open. Merge policy permits CI-passed implementation with
 these hardware cases pending; do not interpret merge/build as physical acceptance.
+
+## Native implementation delivery
+
+[PR14](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/pull/14) merged as
+456a8a400b0e726233a3ac301700dd0ae40c140a after all nine checks passed at ff08f7c7.
+[PR CI37754302902](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/actions/runs/37754302902)
+and [main CI37754630893](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/actions/runs/37754630893)
+pass. Local provider test compilation and both apps' two supported target production builds pass
+with SDK9.2/type-check1. Test execution did not produce output: the task-owned launcher/simulator
+were stopped after a stall. No native or physical execution pass is inferred.
+
+The retained-key testing bundle is rebuilt from456a8a4, SHA256
+2195512ac40009983a9ccbd6c25d09fa43dc5192bbc1f9789363373574bdee07;
+four PRGs plus MIT license/provenance, installation guide and source/hash identity are verified.
+It contains no private signing key. Use the matching new Android setup build before GS retesting.
