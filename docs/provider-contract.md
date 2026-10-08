@@ -44,13 +44,13 @@ starts either player. Sidecar owns GARMIN → ABS progress uploads and preserves
 
 Provider setup requires HTTPS Sidecar health/login and its opaque UUID session, never a normal ABS
 token/JWT fallback. Sidecar does not expose principal identity to this bridge: the user explicitly checks
-matching server/account while pairing and entering setup. Android prefills the current account username;
-it cannot recover a discarded login password. The user explicitly enters it once, submits over the
-separate provider channel, and both sides discard transient password state. Neither Room, saved UI
+matching server/account while pairing and entering setup. The prior phone path prefilled the account username and required one-time password entry. Current
+Android instead supplies the active profile username and reuses an anchored watch session, with no
+phone password entry. Legacy on-watch login discards transient password state. Neither Room, saved UI
 state, normal DataStore, logs nor watch Storage retain it. The watch checks HTTPS /health exactly 200
 text/plain ok before JSON POST /login; only its UUID Sidecar session is saved. Foreign account anchors
-reject setup before health/login; stop/privacy changes invalidate asynchronous callbacks. Legacy
-providers without setup capability retain watch-entry fallback; phone setup fails visibly. Retained profile/account anchors reject rebinding old cache or
+reject setup before health/login; stop/privacy changes invalidate asynchronous callbacks. Providers
+without reuse_login capability retain watch-entry fallback; current phone setup fails visibly. Retained profile/account anchors reject rebinding old cache or
 journal to another user/server. Sync old events before uninstalling to switch accounts. Disconnected
 phone locks cannot remotely erase watch media; delivered clears remove the published projection.
 
