@@ -22,6 +22,7 @@ module Errors {
 
     // A short, actionable hint for a code we recognise, or null otherwise.
     function hint(code) {
+        if (code == -1002) { return "Unexpected response type. Check Sidecar URL and proxy."; }
         if (code == -104) {
             return WatchUi.loadResource(Rez.Strings.errPhone);
         }

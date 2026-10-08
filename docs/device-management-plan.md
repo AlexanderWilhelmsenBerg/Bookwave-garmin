@@ -1,5 +1,7 @@
 # Owner-selected BookWave Audio Provider and device management
 
+**2026-10-08 setup recovery:** Owner-reported pairing/URL failures now have a focused fix: explicit watch Accept/Cancel, code resend/cancel/expiry and phone-driven Sidecar setup. Garmin controls/dialogs and Android sleep schedule reuse glass; sleep enable directly expands time controls. [Regression and physical acceptance register](testing/setup-recovery.md). Hardware retest pending; the reported freeze remains unattributed.
+
 **Classification:** Accepted product/architecture plan; runtime implemented; physical acceptance pending. **Updated:** 2026-10-08.
 Track [Garmin #7](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/issues/7) and Android [#119](https://github.com/AlexanderWilhelmsenBerg/Audiobookshelf-Manager-Claude/issues/119).
 
