@@ -1,5 +1,9 @@
 # Cross-repository reconciliation
 
+**Latest physical feedback:** setup, immediate download and readability failed; see
+[current findings and WD retests](testing/watch-setup-diagnostics.md). Actual download cause/success
+remains unverified.
+
 **Classification:** Current dependencies and delivery boundaries. **Updated:** 2026-10-08.
 
 Garmin Phase 1 model/storage is merged in PR1; documentation reconciliation is merged in PR4.

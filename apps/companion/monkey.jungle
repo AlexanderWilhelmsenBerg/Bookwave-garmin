@@ -1,3 +1,3 @@
 project.manifest = manifest.xml
-base.sourcePath = ../../shared/feed;source;../../shared/model;../../shared/protocol;../../shared/test-fixtures
+base.sourcePath = ../../shared/feed;../../shared/ui;source;../../shared/model;../../shared/protocol;../../shared/test-fixtures
 base.resourcePath = resources

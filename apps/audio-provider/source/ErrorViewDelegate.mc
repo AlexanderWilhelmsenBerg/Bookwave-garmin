@@ -17,4 +17,11 @@ class ErrorViewDelegate extends WatchUi.BehaviorDelegate {
         WatchUi.popView(WatchUi.SLIDE_RIGHT);
         return true;
     }
+    function onNextPage(){return move(1);}
+    function onPreviousPage(){return move(-1);}
+    function move(delta) {
+        var view=WatchUi.getCurrentView()[0];
+        if(view instanceof ErrorView){return view.move(delta);}
+        return false;
+    }
 }

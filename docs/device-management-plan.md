@@ -1,5 +1,9 @@
 # Owner-selected BookWave Audio Provider and device management
 
+**Latest physical feedback:** setup, immediate download and readability failed; see
+[current findings and WD retests](testing/watch-setup-diagnostics.md). Actual download cause/success
+remains unverified.
+
 **2026-10-08 setup recovery:** Owner-reported pairing/URL failures now have a focused fix: explicit watch Accept/Cancel, code resend/cancel/expiry and phone-driven Sidecar setup. Garmin controls/dialogs and Android sleep schedule reuse glass; sleep enable directly expands time controls. [Regression and physical acceptance register](testing/setup-recovery.md). Hardware retest pending; the reported freeze remains unattributed.
 
 **Classification:** Accepted product/architecture plan; runtime implemented; physical acceptance pending. **Updated:** 2026-10-08.

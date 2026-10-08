@@ -84,7 +84,7 @@ class BookMenuDelegate extends WatchUi.Menu2InputDelegate {
         // Session expired -> re-login instead of a dead-end error.
         if (code == 401) { Login.reauth(); return; }
         if (code != 200 || data == null) {
-            WatchUi.pushView(new ErrorView(Errors.message(Rez.Strings.errDetail, code)),
+            WatchUi.pushView(new ErrorView(Errors.bookDetails(code,data)),
                 new ErrorViewDelegate(), WatchUi.SLIDE_LEFT);
             return;
         }
