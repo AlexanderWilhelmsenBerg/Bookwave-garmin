@@ -19,6 +19,9 @@ module ProviderControl {
     var running = false;
     var download = null;
     var pendingPair = null;
+    var pairAt = 0;
+    var pairMenuShowing = false;
+    var setup = null;
     var receiver = new ProviderReceiver();
     function profile() { return Application.Storage.getValue(PAIR); }
     function start() {
@@ -30,7 +33,8 @@ module ProviderControl {
     }
     function stop() {
         announce("sleeping");
-        running=false; pendingPair=null;
+        running=false; pendingPair=null; pairMenuShowing=false;
+        if(setup!=null){setup.cancel();setup=null;}
         try { Communications.registerForPhoneAppMessages(null); } catch(ex) {}
     }
     function announce(type) {
@@ -42,6 +46,7 @@ module ProviderControl {
         Application.Storage.setValue(REDACTED,true);
         BookWaveFeed.clear("GARMIN");
         pendingPair=null;
+        if(setup!=null){setup.cancel();}
     }
     function reply(command,type,fields) {
         if(!running){return;}
@@ -57,15 +62,20 @@ module ProviderControl {
         var type=command["t"];
         if(type.equals("hello")) {
             var same=ProviderPolicy.text(profile(),64) && profile().equals(command["p"]);
-            reply(command,"hello",{"configured"=>AbsApi.isConfigured(),"paired"=>same,
-                "caps"=>["pair","authorize","download","inventory","events","ack_events","sync","redact"]});
+            reply(command,"hello",{"configured"=>AbsApi.isConfigured(),"paired"=>same,"pairing"=>pairing(command["p"]),
+                "caps"=>["setup","cancel_pair","pair","authorize","download","inventory","events","ack_events","sync","redact"]});
             return;
         }
         if(!ProviderPolicy.text(command["n"],64) || !command["n"].equals(nonce)){return;}
         if(type.equals("pair")) { requestPair(command); return; }
+        if(type.equals("cancel_pair")) {
+            if(pendingPair!=null && pendingPair["p"].equals(command["p"])){pendingPair=null;}
+            reply(command,"result",{"ok"=>true});return;
+        }
         if(!ProviderPolicy.accepts(command,profile(),nonce)){error(command,"PROFILE_MISMATCH");return;}
         if(type.equals("redact")) {
             Application.Storage.setValue(REDACTED,true);
+            if(setup!=null){setup.cancel();}
         BookWaveFeed.clear("GARMIN");
             reply(command,"result",{"ok"=>true}); return;
         }
@@ -74,6 +84,11 @@ module ProviderControl {
             reply(command,"result",{"ok"=>true}); return;
         }
         if(Application.Storage.getValue(REDACTED)==true){error(command,"REDACTED");return;}
+        if(type.equals("setup")) {
+            if(!ProviderPolicy.setup(command)){error(command,"INVALID_SETUP");return;}
+            if(setup!=null){error(command,"BUSY");return;}
+            setup=new ProviderSetupRequest(command);setup.begin();return;
+        }
         if(type.equals("inventory")){inventory(command);return;}
         if(type.equals("events")){events(command);return;}
         if(type.equals("ack_events")) {
@@ -91,7 +106,6 @@ module ProviderControl {
         error(command,"UNSUPPORTED");
     }
     function requestPair(command) {
-        if(!AbsApi.isConfigured()){error(command,"NOT_CONFIGURED");return;}
         if(ProviderPolicy.text(profile(),64)) {
             if(profile().equals(command["p"])) {
                 Application.Storage.setValue(REDACTED,false);
@@ -104,16 +118,27 @@ module ProviderControl {
         if((books!=null && books.size()>0) || JobStore.list().size()>0 || ProviderJournal.events().size()>0) {
             error(command,"RESET_REQUIRED");return;
         }
-        if(pendingPair!=null){error(command,"PAIR_PENDING");return;}
-        if(!ProviderPolicy.text(command["code"],6)){error(command,"INVALID_COMMAND");return;}
+        if(pendingPair!=null && !pendingPair["p"].equals(command["p"]) && pairing(pendingPair["p"])) {error(command,"PAIR_PENDING");return;}
+        if(!ProviderPolicy.code(command["code"])){error(command,"INVALID_COMMAND");return;}
         pendingPair=command;
-        WatchUi.pushView(new WatchUi.Confirmation("Pair BookWave " + command["code"] +
-            "?\nConfirm Sidecar uses the same account."),new ProviderPairDelegate(),WatchUi.SLIDE_LEFT);
+        pairAt=Time.now().value();
+        var menu=new WatchUi.Menu2({:title=>"BookWave " + command["code"]});
+        menu.addItem(new WatchUi.MenuItem("Accept pairing","Same BookWave account",:accept,{}));
+        menu.addItem(new WatchUi.MenuItem("Cancel",null,:cancel,{}));
+        var delegate=new ProviderPairDelegate(command["r"]);
+        if(pairMenuShowing){WatchUi.switchToView(menu,delegate,WatchUi.SLIDE_IMMEDIATE);}
+        else {WatchUi.pushView(menu,delegate,WatchUi.SLIDE_LEFT);}
+        pairMenuShowing=true;
         reply(command,"result",{"ok"=>false,"error"=>"CONFIRM_ON_WATCH"});
     }
-    function confirmPair(yes) {
+    function pairing(owner) {
+        return pendingPair!=null && pendingPair["p"].equals(owner) && Time.now().value()-pairAt<120;
+    }
+    function confirmPair(yes,request) {
+        if(pendingPair==null || !pendingPair["r"].equals(request)){return;}
+        var valid=pairing(pendingPair["p"]);
         var command=pendingPair; pendingPair=null;
-        if(command==null){return;}
+        if(!valid){error(command,"PAIR_EXPIRED");return;}
         if(!yes){error(command,"PAIR_CANCELLED");return;}
         try {
             Application.Storage.setValue(PAIR,command["p"]);
@@ -182,9 +207,52 @@ module ProviderControl {
     }
 }
 
-class ProviderPairDelegate extends WatchUi.ConfirmationDelegate {
-    function initialize(){ConfirmationDelegate.initialize();}
-    function onResponse(response){ProviderControl.confirmPair(response==WatchUi.CONFIRM_YES);return true;}
+class ProviderPairDelegate extends WatchUi.Menu2InputDelegate {
+    var request;
+    function initialize(id){Menu2InputDelegate.initialize();request=id;}
+    function onSelect(item){
+        ProviderControl.confirmPair(item.getId()==:accept,request);
+        ProviderControl.pairMenuShowing=false;
+        WatchUi.popView(WatchUi.SLIDE_RIGHT);
+    }
+    function onBack(){
+        ProviderControl.confirmPair(false,request);
+        ProviderControl.pairMenuShowing=false;
+        WatchUi.popView(WatchUi.SLIDE_RIGHT);
+    }
+}
+
+// AUTH-001/003: explicit one-time provider setup, separate from Companion state.
+// Only the opaque Sidecar session survives. HTTP callbacks cannot commit after stop/profile change.
+class ProviderSetupRequest {
+    var command;
+    var password;
+    function initialize(raw) {
+        command={"v"=>raw["v"],"t"=>raw["t"],"r"=>raw["r"],"p"=>raw["p"],"n"=>raw["n"],"url"=>raw["url"],"user"=>raw["user"]};
+        password=raw["password"];
+    }
+    function cancel(){password=null;if(ProviderControl.setup==self){ProviderControl.setup=null;}}
+    function active(){return ProviderControl.setup==self && ProviderControl.running && ProviderPolicy.accepts(command,ProviderControl.profile(),ProviderControl.nonce) && Application.Storage.getValue(ProviderControl.REDACTED)!=true;}
+    function begin(){
+        if(!AbsApi.sameAccount(command["url"],command["user"])) {finish("ACCOUNT_MISMATCH");return;}
+        AbsApi.checkHealth(command["url"],method(:health));
+    }
+    function health(code,data){
+        if(!active()){cancel();return;}
+        if(code!=200 || !(data instanceof Lang.String) || !data.equals("ok")){finish(code==-1002?"CONTENT_TYPE":"SIDECAR_UNAVAILABLE");return;}
+        var secret=password;password=null;
+        AbsApi.login(command["url"],command["user"],secret,method(:loggedIn));
+    }
+    function loggedIn(code,data){
+        if(!active()){cancel();return;}
+        if(code==200 && (data instanceof Lang.Dictionary) && (data["user"] instanceof Lang.Dictionary) && AbsApi.saveLogin(command["url"],data["user"]["token"],command["user"])) {
+            cancel();ProviderControl.setup=null;
+            ProviderControl.reply(command,"result",{"ok"=>true});
+            ProviderControl.announce("ready");return;
+        }
+        finish(code==401?"LOGIN_REJECTED":(code==-1002?"CONTENT_TYPE":"SIDECAR_UNAVAILABLE"));
+    }
+    function finish(error){cancel();ProviderControl.setup=null;ProviderControl.error(command,error);}
 }
 
 class ProviderDownloadRequest extends BookMenuDelegate {

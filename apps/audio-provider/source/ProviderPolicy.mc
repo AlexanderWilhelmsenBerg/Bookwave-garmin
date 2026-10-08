@@ -6,7 +6,19 @@ module ProviderPolicy {
     }
     function validUrl(value) {
         if (!text(value,512) || value.length() <= 8 || !value.substring(0,8).equals("https://")) { return false; }
+        var host=value.substring(8,value.length());
+        var slash=host.find("/");
+        if(slash!=null){host=host.substring(0,slash);}
+        if(host.length()==0 || value.find("/../")!=null || value.find("/./")!=null || value.find("\\")!=null || value.find("\r")!=null || value.find("\t")!=null){return false;}
         return value.find("@") == null && value.find(" ") == null && value.find("\n") == null && value.find("?") == null && value.find("#") == null;
+    }
+    function code(value) {
+        if(!text(value,6) || value.length()!=6){return false;}
+        for(var i=0;i<6;i++){if("0123456789".find(value.substring(i,i+1))==null){return false;}}
+        return true;
+    }
+    function setup(value) {
+        return validUrl(value["url"]) && text(value["user"],128) && text(value["password"],256);
     }
     function validSession(value) {
         if (!text(value,36) || value.length() != 36) { return false; }

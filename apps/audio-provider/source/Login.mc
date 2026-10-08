@@ -83,6 +83,7 @@ class LoginView extends WatchUi.View {
             AbsApi.login(mCreds.server, mCreds.username, mCreds.password, method(:onLogin));
         } else {
             mState = 99;
+            mCreds.password = "";
             mMessage = Errors.message(Rez.Strings.errNotWatchShelf, code);
             WatchUi.requestUpdate();
         }

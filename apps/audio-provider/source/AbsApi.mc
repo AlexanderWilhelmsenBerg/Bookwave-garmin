@@ -264,6 +264,10 @@ module AbsApi {
             postOptions(),
             new SidecarReply("login",cb).method(:receive));
     }
+    function sameAccount(server,username) {
+        var account=Application.Storage.getValue("bookwave.sidecarAccount.v1");
+        return !(account instanceof Lang.Dictionary) || (account["server"].equals(_noSlash(server)) && account["user"].equals(username));
+    }
     function saveLogin(server, token, username) {
         if (!ProviderPolicy.validUrl(server) || !ProviderPolicy.validSession(token)) { return false; }
         var account=Application.Storage.getValue("bookwave.sidecarAccount.v1");
