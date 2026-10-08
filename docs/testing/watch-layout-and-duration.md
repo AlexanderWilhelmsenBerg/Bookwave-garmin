@@ -20,16 +20,18 @@ add HTTPS, remember Sidecar's address, and reuse the signed-in account without c
 - Shared native drawing uses BookWave dark teal surfaces, semantic colors/font roles, a restrained
   headphone glyph and measured clearance for START/Help and BACK/Exit or Back labels. Page arrows
   align with UP/DOWN. Audio setup/login/error screens reuse the theme. No animation/network polling
-  was added to rendering. Build label is **TEST 2026-10-08c**.
+  was added to rendering. Build label is **TEST 2026-10-08d**.
 - Android supplies HTTPS for bare addresses and saves the successful canonical URL in the existing
   profile/device-owned Room record. Locked-profile UI hides it. No schema or dependency change.
+- Provider advertises `reuse_login` for an exact anchored watch account, with no phone password/token.
+  Android derives the username from its captured active profile. Fresh watch login is required first.
 - Provider advertises additive `setup_session`, accepting only an opaque UUID after matching profile,
   nonce, account anchor, health and authenticated library checks. Old setup/on-watch login still work.
 - A tested optional [Sidecar session extension](../sidecar-session-extension.md) is prepared. The
   password-free Android exchange is **not implemented/deployed**: automatic approval review rejected
   access-token egress to an unverified user-entered destination. Exact destination and token-sharing
   approval have been requested. No real credential was used and no running Sidecar was changed.
-  The current phone build still has its prior one-time password form until that approval is resolved.
+  Current Android uses URL-only retained-watch-session reuse; fresh-watch phone bootstrap is pending.
 
 ## Verification
 
@@ -51,13 +53,14 @@ not override circular-device geometry. Actual pixel appearance remains an owner 
 
 | ID | Test | State |
 | --- | --- | --- |
-| WL01 | Upgrade matching filenames with retained signer; verify `TEST 2026-10-08c` in Audio setup/Companion Help; retain account, media and progress. | Pending |
+| WL01 | Upgrade matching filenames with retained signer; verify `TEST 2026-10-08d` in Audio setup/Companion Help; retain account, media and progress. | Pending |
 | WL02 | Repeat the failing book Download. Admission must reach a real queued job. If rejected, record only raw code, field and fixed reason; then check Wi-Fi transfer and offline playback separately. | Prior `files.duration` admission failed; retest pending |
 | WL03 | Visual: empty Companion on 43/47 target; read all text/pages, identify Help and Exit beside their keys, and locate offline Audio using Help. | Prior clipping/guidance failed; retest pending |
 | WL04 | Visual: long title, author, chapter, playing/paused/stored state, progress and recency. UP/DOWN reaches all text; no clipping/label overlap; live updates preserve current page. | Pending |
 | WL05 | Visual: setup, login and long errors share the theme; all code/field/reason pages are readable; Back returns, Books only acts after configured/non-busy setup. | Pending |
 | WL06 | On Android enter host/subpath without scheme; complete existing setup, reopen after process restart/update, see saved address. Explicit HTTP/invalid destinations must fail. Locked/switched profiles must hide foreign address. | Pending |
-| WL07 | After credential-egress approval and Sidecar extension deployment: no username/password form; signed-in exchange, watch validation, retry, wrong account, lock/switch/disconnect rejection. | Blocked on approval/integration; not delivered |
+| WL07 | URL-only phone setup reuses an existing watch login; verify no credential fields, retry, wrong server/account, expired login, lock/switch/disconnect rejection and upgrade. | Implemented; physical retest pending |
+| WL09 | Fresh-watch bootstrap from signed-in phone account without watch-entry login. | Blocked on destination/token-sharing approval and extension integration |
 | WL08 | With a pre-existing Sidecar refresh session, watch access outlives phone access expiry. A new access-only session requires phone refresh; verify independent Android renewal is preserved. | Blocked on extension deployment/approval |
 
 Keep WD01–08 and earlier GD/GF acceptance open. No watch face, Data Field, iOS or Silo work.

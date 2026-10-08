@@ -24,7 +24,7 @@ the PRG on some firmware, so not seeing the copied file afterward does not prove
    paired with the Android phone; it carries the BookWave bridge messages.
 4. On the watch, open **BookWave Audio → Browse library / Add music**. Leave the setup menu open
    and choose **Use BookWave phone app**. Leave the guidance/status view open during Send setup.
-   Check build label **TEST 2026-10-08c**. Keep Garmin Connect running and the watch connected.
+   Check build label **TEST 2026-10-08d**. Keep Garmin Connect running and the watch connected.
    Existing on-watch entry remains available through **Enter on watch**.
 5. In Android BookWave open **Settings → Playback → Devices → Garmin → Pair watch**. Compare the
    six-digit code, then select **Accept <code>** on the watch. **Cancel** or watch Back rejects it.
@@ -34,12 +34,12 @@ the PRG on some firmware, so not seeing the copied file afterward does not prove
    If interrupted, choose **Send new pairing code**; the request expires after two minutes.
    **Cancel pairing** clears the phone request without unbinding an already accepted account.
    Pair an empty provider before downloading; retained unbound media/events cannot be relabelled.
-   Once paired, open **WatchShelf Sidecar setup** on the phone. Enter the Sidecar host
-   and optional subpath (HTTPS is supplied if omitted; successful URL is remembered), verify the prefilled current username, and enter your password
-   once. **Send setup** sends these to the provider for health/login; passwords are never saved.
-   Password-free reuse of the signed-in session is the requested next UX; it remains pending
-   exact token-sharing destination approval and the optional Sidecar extension. This current phone
-   build still uses the legacy one-time password form; do not mistake the watch capability for delivery.
+   Once paired, sign in once through **Enter on watch** if this provider has no retained login.
+   Then open **WatchShelf Sidecar setup** on the phone. Enter just the Sidecar host/subpath;
+   HTTPS is supplied automatically. **Send setup** reuses the watch's existing login for the active
+   BookWave username. There are no phone username/password fields. Reopening preloads the last
+   successful address. A mismatched server/account is refused; a fresh watch requests on-watch login.
+   First-time bootstrap from the phone's ABS access token is still pending approval/integration.
    Use Sidecar's URL, not the Audiobookshelf URL. In this build -1002 means an unexpected response content type;
    check the URL and proxy redirects/error pages. A retained watch account refuses a different
    server/username: sync old progress before any deliberate provider reset.

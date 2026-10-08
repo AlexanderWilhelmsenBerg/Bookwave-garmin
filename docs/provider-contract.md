@@ -44,13 +44,13 @@ starts either player. Sidecar owns GARMIN → ABS progress uploads and preserves
 
 Provider setup requires HTTPS Sidecar health/login and its opaque UUID session, never a normal ABS
 token/JWT fallback. Sidecar does not expose principal identity to this bridge: the user explicitly checks
-matching server/account while pairing and entering setup. Android prefills the current account username;
-it cannot recover a discarded login password. The user explicitly enters it once, submits over the
-separate provider channel, and both sides discard transient password state. Neither Room, saved UI
+matching server/account while pairing and entering setup. The prior phone path prefilled the account username and required one-time password entry. Current
+Android instead supplies the active profile username and reuses an anchored watch session, with no
+phone password entry. Legacy on-watch login discards transient password state. Neither Room, saved UI
 state, normal DataStore, logs nor watch Storage retain it. The watch checks HTTPS /health exactly 200
 text/plain ok before JSON POST /login; only its UUID Sidecar session is saved. Foreign account anchors
-reject setup before health/login; stop/privacy changes invalidate asynchronous callbacks. Legacy
-providers without setup capability retain watch-entry fallback; phone setup fails visibly. Retained profile/account anchors reject rebinding old cache or
+reject setup before health/login; stop/privacy changes invalidate asynchronous callbacks. Providers
+without reuse_login capability retain watch-entry fallback; current phone setup fails visibly. Retained profile/account anchors reject rebinding old cache or
 journal to another user/server. Sync old events before uninstalling to switch accounts. Disconnected
 phone locks cannot remotely erase watch media; delivered clears remove the published projection.
 
@@ -95,3 +95,20 @@ The owner supersedes one-time password entry as the desired phone UX: reuse the 
 The [optional session extension](sidecar-session-extension.md) is a tested source candidate; actual
 Android token exchange and deployment await explicit destination/credential-egress authorization.
 Current legacy setup remains usable; the new watch capability does not imply phone delivery.
+
+## Retained watch login reuse — 2026-10-08
+
+**Current setup — 2026-10-08:** Android setup now needs only the Sidecar address. It derives the
+username from the active BookWave profile and asks the watch to reuse its existing opaque Sidecar
+session (`reuse_login`). The watch requires a retained exact server/username account anchor, checks
+health and authenticated libraries, and refuses a different account or destination. No Android
+access token, refresh token or password is sent. Bare addresses get HTTPS; successful canonical
+addresses are remembered per profile/device and hidden when locked. A fresh watch must sign in
+through BookWave Audio first. First-time setup using the phone's ABS access token remains pending
+explicit destination/token-sharing approval and optional Sidecar integration. Hardware acceptance
+remains open. Watch build label: **TEST 2026-10-08d**.
+
+The additive `reuse_login` payload contains only `url` and the captured profile `user`.
+The existing profile/nonce/foreground guards apply. Missing anchor/session returns
+`WATCH_LOGIN_REQUIRED`; another server/user returns `ACCOUNT_MISMATCH`.
+Legacy watch-entry login remains available, but Android no longer offers password entry.
