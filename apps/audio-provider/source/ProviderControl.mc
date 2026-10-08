@@ -34,7 +34,7 @@ module ProviderControl {
     function stop() {
         announce("sleeping");
         running=false; pendingPair=null; pairMenuShowing=false;
-        if(setup!=null){setup.cancel();setup=null;}
+        if(setup!=null){setup.cancel();setup=null;ProviderSetupState.status="Setup interrupted. Open phone setup and Send setup again.";}
         try { Communications.registerForPhoneAppMessages(null); } catch(ex) {}
     }
     function announce(type) {
@@ -123,7 +123,7 @@ module ProviderControl {
         pendingPair=command;
         pairAt=Time.now().value();
         var menu=new WatchUi.Menu2({:title=>"BookWave " + command["code"]});
-        menu.addItem(new WatchUi.MenuItem("Accept pairing","Same BookWave account",:accept,{}));
+        menu.addItem(new WatchUi.MenuItem("Accept " + command["code"],"Code matches phone?",:accept,{}));
         menu.addItem(new WatchUi.MenuItem("Cancel",null,:cancel,{}));
         var delegate=new ProviderPairDelegate(command["r"]);
         if(pairMenuShowing){WatchUi.switchToView(menu,delegate,WatchUi.SLIDE_IMMEDIATE);}
@@ -235,11 +235,13 @@ class ProviderSetupRequest {
     function active(){return ProviderControl.setup==self && ProviderControl.running && ProviderPolicy.accepts(command,ProviderControl.profile(),ProviderControl.nonce) && Application.Storage.getValue(ProviderControl.REDACTED)!=true;}
     function begin(){
         if(!AbsApi.sameAccount(command["url"],command["user"])) {finish("ACCOUNT_MISMATCH");return;}
+        ProviderSetupState.update("Checking Sidecar /health...");
         AbsApi.checkHealth(command["url"],method(:health));
     }
     function health(code,data){
         if(!active()){cancel();return;}
-        if(code!=200 || !(data instanceof Lang.String) || !data.equals("ok")){finish(code==-1002?"CONTENT_TYPE":"SIDECAR_UNAVAILABLE");return;}
+        if(code!=200 || !(data instanceof Lang.String) || !data.equals("ok")){finish(code==200?"INCOMPATIBLE_SIDECAR":ProviderSetupState.loginError(code));return;}
+        ProviderSetupState.update("Signing in to Sidecar...");
         var secret=password;password=null;
         AbsApi.login(command["url"],command["user"],secret,method(:loggedIn));
     }
@@ -247,12 +249,13 @@ class ProviderSetupRequest {
         if(!active()){cancel();return;}
         if(code==200 && (data instanceof Lang.Dictionary) && (data["user"] instanceof Lang.Dictionary) && AbsApi.saveLogin(command["url"],data["user"]["token"],command["user"])) {
             cancel();ProviderControl.setup=null;
+            ProviderSetupState.update("Sidecar configured. START: open library.");
             ProviderControl.reply(command,"result",{"ok"=>true});
             ProviderControl.announce("ready");return;
         }
-        finish(code==401?"LOGIN_REJECTED":(code==-1002?"CONTENT_TYPE":"SIDECAR_UNAVAILABLE"));
+        finish(ProviderSetupState.loginError(code));
     }
-    function finish(error){cancel();ProviderControl.setup=null;ProviderControl.error(command,error);}
+    function finish(error){cancel();ProviderControl.setup=null;ProviderSetupState.update(ProviderSetupState.error(error));ProviderControl.error(command,error);}
 }
 
 class ProviderDownloadRequest extends BookMenuDelegate {

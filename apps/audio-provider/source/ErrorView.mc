@@ -7,6 +7,8 @@ using Toybox.WatchUi;
 class ErrorView extends WatchUi.View {
 
     private var mMessage;
+    var page=0;
+    var pages=1;
 
     function initialize(message) {
         View.initialize();
@@ -17,7 +19,13 @@ class ErrorView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-        dc.drawText(dc.getWidth() / 2, dc.getHeight() / 2, Graphics.FONT_SMALL,
-            mMessage, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        pages=RoundText.draw(dc,mMessage,page,"BACK: return");
+    }
+    function move(delta) {
+        page+=delta;
+        if(page<0){page=0;}
+        if(page>=pages){page=pages-1;}
+        WatchUi.requestUpdate();
+        return true;
     }
 }

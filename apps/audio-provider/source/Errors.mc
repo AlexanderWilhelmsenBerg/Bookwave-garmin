@@ -22,7 +22,8 @@ module Errors {
 
     // A short, actionable hint for a code we recognise, or null otherwise.
     function hint(code) {
-        if (code == -1002) { return "Unexpected response type. Check Sidecar URL and proxy."; }
+        if (code == -1002) { return "Response type rejected. Check Sidecar URL / proxy."; }
+        if (code == SidecarStatus.INVALID_RESPONSE) { return "Sidecar data incompatible. Report field below."; }
         if (code == -104) {
             return WatchUi.loadResource(Rez.Strings.errPhone);
         }
@@ -39,6 +40,14 @@ module Errors {
         var h = hint(code);
         var base = (h != null) ? h : WatchUi.loadResource(fallbackRezId);
         return base + "\n(" + code + ")";
+    }
+
+    function bookDetails(code,data) {
+        var text="Book details\n"+message(Rez.Strings.errDetail,code);
+        if(code==SidecarStatus.INVALID_RESPONSE && data instanceof Toybox.Lang.Dictionary) {
+            text+="\nField: "+data["field"];
+        }
+        return text;
     }
 
     // Audio-transfer-specific wording. These codes are otherwise collapsed by

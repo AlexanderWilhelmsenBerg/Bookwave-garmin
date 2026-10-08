@@ -14,8 +14,11 @@ class ProviderSetupMenuDelegate extends WatchUi.Menu2InputDelegate {
     function initialize(){Menu2InputDelegate.initialize();}
     function onSelect(item){
         if(item.getId()==:watch){Login.start();}
-        else if(AbsApi.isConfigured()){WatchUi.switchToView(new LibraryView(),new LibraryViewDelegate(),WatchUi.SLIDE_LEFT);}
-        else {ProviderControl.announce("ready");}
+        else {
+            var view=new PhoneSetupView();
+            WatchUi.switchToView(view,new PhoneSetupDelegate(view),WatchUi.SLIDE_LEFT);
+            ProviderControl.announce("ready");
+        }
     }
     function onBack(){WatchUi.popView(WatchUi.SLIDE_RIGHT);}
 }

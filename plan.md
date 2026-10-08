@@ -1,5 +1,10 @@
 # BookWave Garmin — Delivery Plan
 
+**2026-10-08 physical feedback:** Phone setup, immediate Download admission and error readability failed
+on the owner's watch; on-watch login/catalogue access worked. Diagnostics and button guidance are
+implemented; actual download cause/success remains unverified. [Current findings and WD retests](docs/testing/watch-setup-diagnostics.md)
+supersede blanket NOT RUN for exercised paths; keep hardware acceptance open.
+
 **2026-10-08 setup recovery:** Owner-reported pairing/URL failures now have a focused fix: explicit watch Accept/Cancel, code resend/cancel/expiry and phone-driven Sidecar setup. Garmin controls/dialogs and Android sleep schedule reuse glass; sleep enable directly expands time controls. [Regression and physical acceptance register](docs/testing/setup-recovery.md). Hardware retest pending; the reported freeze remains unattributed.
 
 **Provider/control/feed implementation — 2026-10-08:** BookWave Audio is a separate native

@@ -74,6 +74,10 @@ Setup URL maximum 512 characters, username 128, password 256; HTTPS base URL onl
 and rejecting userinfo/query/fragment/whitespace/dot traversal. Android strips surrounding whitespace
 and trailing slashes. Credentials are not retried automatically; re-enter the password after a failure.
 WatchShelf login/health reuse the captured MIT upstream contract 93ac7507; no ABS endpoint is invented.
-Garmin -1002 is UNSUPPORTED_CONTENT_TYPE_IN_RESPONSE, not proof of a bad URL. A wrong destination or
+Garmin -1002 is UNSUPPORTED_CONTENT_TYPE_IN_RESPONSE, not proof of a bad URL. Builds before the
+watch-diagnostics fix also incorrectly synthesized it for schema rejection; those reports cannot
+distinguish content type from incompatible JSON. App schema rejection now uses internal -20001 with
+fixed field names and setup reason INCOMPATIBLE_SIDECAR (major-v1 additive reason; older phones may
+show a generic failure). No private response values enter diagnostics. A wrong destination or
 proxy HTML response is a possible cause. Show actionable URL/proxy guidance and keep normal TLS checks.
 See [Garmin Communications](https://developer.garmin.com/connect-iq/api-docs/Toybox/Communications.html).

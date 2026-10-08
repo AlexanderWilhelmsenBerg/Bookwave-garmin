@@ -1,6 +1,21 @@
 using Toybox.Lang;
 // Contract: WatchShelf 93ac7507 /files response. Unknown fields are harmless.
 module SidecarCodec {
+    // Only fixed schema names leave this boundary; never include response values.
+    function failure(kind,value) {
+        if(accepts(kind,value)){return null;}
+        if(!(value instanceof Lang.Dictionary)){return "response";}
+        if(!kind.equals("files")){return kind+".response";}
+        if(!ProviderPolicy.text(value["title"],512)){return "title";}
+        if(!(value["files"] instanceof Lang.Array) || value["files"].size()==0 || value["files"].size()>JobStore.MAX_FILES){return "files";}
+        for(var i=0;i<value["files"].size();i++) {
+            var file=value["files"][i];
+            if(!(file instanceof Lang.Dictionary)){return "files.entry";}
+            if(!ProviderPolicy.text(file["ino"],128)){return "files.ino";}
+            if(!numeric(file["duration"]) || file["duration"]<=0){return "files.duration";}
+        }
+        return "files.response";
+    }
     function accepts(kind,value) {
         if(!(value instanceof Lang.Dictionary)){return false;}
         if(kind.equals("files")){return files(value) || value["tooManyFiles"]==true;}

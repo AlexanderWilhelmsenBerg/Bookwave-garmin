@@ -28,7 +28,7 @@ class CompanionView extends WatchUi.View {
         var cx = dc.getWidth() / 2;
         var height = dc.getHeight();
 
-        drawCentered(dc, cx, height * 8 / 100, Graphics.FONT_SMALL, "BOOKWAVE");
+        drawCentered(dc, cx, height * 8 / 100, Graphics.FONT_XTINY, "BOOKWAVE PHONE");
 
         if (_loadStatus == SnapshotStoreState.LOAD_INVALID) {
             drawInvalidState(dc, cx, height);
@@ -44,9 +44,11 @@ class CompanionView extends WatchUi.View {
     }
 
     function drawNeverSyncedState(dc, cx, height) {
-        drawCentered(dc, cx, height * 36 / 100, Graphics.FONT_MEDIUM, "No current book");
-        drawCentered(dc, cx, height * 48 / 100, Graphics.FONT_SMALL, "No playback snapshot");
-        drawCentered(dc, cx, height * 62 / 100, Graphics.FONT_XTINY, _connection);
+        drawCentered(dc, cx, height * 32 / 100, Graphics.FONT_SMALL, "No phone book yet");
+        drawCentered(dc, cx, height * 46 / 100, Graphics.FONT_XTINY, "Open BookWave on phone");
+        drawCentered(dc, cx, height * 59 / 100, Graphics.FONT_XTINY, _connection.equals("Stored; waiting for phone")?"Waiting for phone":_connection);
+        drawCentered(dc, cx, height * 72 / 100, Graphics.FONT_XTINY, "START: help | BACK: exit");
+        drawCentered(dc, cx, height * 83 / 100, Graphics.FONT_XTINY, BuildLabel.VALUE);
     }
 
     function drawInvalidState(dc, cx, height) {
@@ -68,12 +70,16 @@ class CompanionView extends WatchUi.View {
         drawCentered(dc, cx, height * 49 / 100, Graphics.FONT_LARGE, PlaybackFormat.percent(_snapshot));
         drawCentered(dc, cx, height * 61 / 100, Graphics.FONT_SMALL, PlaybackFormat.progress(_snapshot));
 
-        drawCentered(dc, cx, height * 73 / 100, Graphics.FONT_XTINY, stateLabel);
-        drawCentered(dc, cx, height * 81 / 100, Graphics.FONT_XTINY, _connection);
-        drawCentered(dc, cx, height * 90 / 100, Graphics.FONT_XTINY, PlaybackFormat.recency(_snapshot));
+        drawCentered(dc, cx, height * 70 / 100, Graphics.FONT_XTINY, stateLabel);
+        drawCentered(dc, cx, height * 77 / 100, Graphics.FONT_XTINY, _connection);
+        drawCentered(dc, cx, height * 84 / 100, Graphics.FONT_XTINY, PlaybackFormat.recency(_snapshot));
+        drawCentered(dc, cx, height * 90 / 100, Graphics.FONT_XTINY, "START: help");
     }
 
     function drawCentered(dc, cx, y, font, text) {
+        // The safe chord narrows near the circle's top/bottom; never clip glyphs there.
+        var width=dc.getWidth()*(y<dc.getHeight()*15/100 || y>dc.getHeight()*80/100?55:78)/100;
+        while(text.length()>1 && dc.getTextWidthInPixels(text,font)>width){text=text.substring(0,text.length()-2)+"…";}
         dc.drawText(cx, y, font, text, Graphics.TEXT_JUSTIFY_CENTER);
     }
 
