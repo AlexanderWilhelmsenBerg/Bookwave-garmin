@@ -25,7 +25,8 @@ class PhoneSetupView extends WatchUi.View {
         var value=ProviderSetupState.status;
         if(!message.equals(value)){page=0;message=value;}
         dc.drawText(dc.getWidth()/2,dc.getHeight()*12/100,Graphics.FONT_XTINY,"BOOKWAVE AUDIO",Graphics.TEXT_JUSTIFY_CENTER);
-        pages=RoundText.draw(dc,value,page,"START: library | BACK");
+        var footer=AbsApi.isConfigured() && ProviderControl.setup==null?"START: library | BACK":"BACK: exit";
+        pages=RoundText.draw(dc,value,page,footer);
         dc.drawText(dc.getWidth()/2,dc.getHeight()*85/100,Graphics.FONT_XTINY,BuildLabel.VALUE,Graphics.TEXT_JUSTIFY_CENTER);
     }
     function move(delta){page+=delta;if(page<0){page=0;}if(page>=pages){page=pages-1;}WatchUi.requestUpdate();return true;}
