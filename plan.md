@@ -611,7 +611,7 @@ existing transport acceptance stay NOT RUN until evidence is logged.
 
 At minimum:
 
-- no ABS password on Garmin;
+- no stored ABS password on Garmin; Companion never receives it. The separate provider accepts only explicitly submitted one-time Sidecar-login credentials under the [provider setup contract](docs/provider-contract.md);
 - no long-lived normal ABS access token in BookWave Garmin state;
 - locked profiles redact metadata;
 - profile changes clear stale metadata;

@@ -56,7 +56,7 @@ Room migration; auth/privacy/lock/switch; no autoplay/max-position; actual UI/pr
 formatter/strict Android verifyDebug and Garmin supported-target/test/package CI. Guarded fixes need
 actual-source reversion proof. Record execution separately from test compilation.
 
-Physical **GD-01–10 all NOT RUN**: connection/timestamps; compact menu/dialog appearance; authorized
+Physical **GD-01–10 remaining matrix pending** (owner-reported pairing/URL failures and GS01–10 retests are tracked in [setup recovery](testing/setup-recovery.md)): connection/timestamps; compact menu/dialog appearance; authorized
 picker/right-account queue; native Wi-Fi admission/resume/integrity; phone-free playback/chapters/
 rewind/reboot; idempotent Force sync; outages/expired credentials; profile/account/second-watch
 isolation; Android audio/timer continuity; provider retention/battery/Connect lifecycle. Exact cases
