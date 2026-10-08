@@ -36,7 +36,7 @@ module RoundText {
             dc.drawText(dc.getWidth()/2,y,font,lines[i],Graphics.TEXT_JUSTIFY_CENTER);
             y+=step;
         }
-        var label=pages>1?"UP/DOWN "+(page+1)+"/"+pages:footer;
+        var label=pages>1?"UP/DOWN "+(page+1)+"/"+pages+" | BACK":footer;
         dc.drawText(dc.getWidth()/2,dc.getHeight()*77/100,font,label,Graphics.TEXT_JUSTIFY_CENTER);
         return pages;
     }
