@@ -4,6 +4,7 @@ module ProviderSetupState {
     var status="Open phone Settings > Playback > Devices. Pair, then Send setup. Keep this screen open.";
     function update(value){status=value;WatchUi.requestUpdate();}
     function error(code) {
+        if(code.equals("WATCH_LOGIN_REQUIRED")){return "Sign in to BookWave Audio on this watch first. Existing books and progress are kept.";}
         if(code.equals("ACCOUNT_MISMATCH")){return "Account differs from saved watch login. Use the same Sidecar URL and username. Do not reset unsynced books.";}
         if(code.equals("LOGIN_REJECTED")){return "Login rejected. Check username / password on phone; Send setup again.";}
         if(code.equals("CONTENT_TYPE")){return "Response type rejected. Check Sidecar URL / proxy; Send setup again.";}

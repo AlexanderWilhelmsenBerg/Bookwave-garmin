@@ -45,3 +45,7 @@ license. Do not log or copy session-file contents into documentation. Back up/re
 image and configuration for rollback. Run capability, health, existing login/catalogue, duration,
 transcode, renewal and cross-account acceptance in a separate test deployment before production.
 Production promotion/restart is a separate explicit action; this repository build does not deploy it.
+
+Current URL-only Android `reuse_login` requires no extension or ABS token sharing. It validates
+the retained watch login at its anchored destination. This extension remains an optional candidate
+for first-time signed-in phone bootstrap, pending explicit approval/integration/deployment.

@@ -23,6 +23,9 @@ module ProviderPolicy {
     function sessionSetup(value) {
         return validUrl(value["url"]) && text(value["user"],128) && validSession(value["session"]);
     }
+    function reuseSetup(value) {
+        return validUrl(value["url"]) && text(value["user"],128) && value["password"]==null && value["session"]==null;
+    }
     function validSession(value) {
         if (!text(value,36) || value.length() != 36) { return false; }
         for (var i=0;i<36;i++) {

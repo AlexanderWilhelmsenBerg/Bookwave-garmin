@@ -95,3 +95,20 @@ The owner supersedes one-time password entry as the desired phone UX: reuse the 
 The [optional session extension](sidecar-session-extension.md) is a tested source candidate; actual
 Android token exchange and deployment await explicit destination/credential-egress authorization.
 Current legacy setup remains usable; the new watch capability does not imply phone delivery.
+
+## Retained watch login reuse — 2026-10-08
+
+**Current setup — 2026-10-08:** Android setup now needs only the Sidecar address. It derives the
+username from the active BookWave profile and asks the watch to reuse its existing opaque Sidecar
+session (`reuse_login`). The watch requires a retained exact server/username account anchor, checks
+health and authenticated libraries, and refuses a different account or destination. No Android
+access token, refresh token or password is sent. Bare addresses get HTTPS; successful canonical
+addresses are remembered per profile/device and hidden when locked. A fresh watch must sign in
+through BookWave Audio first. First-time setup using the phone's ABS access token remains pending
+explicit destination/token-sharing approval and optional Sidecar integration. Hardware acceptance
+remains open. Watch build label: **TEST 2026-10-08d**.
+
+The additive `reuse_login` payload contains only `url` and the captured profile `user`.
+The existing profile/nonce/foreground guards apply. Missing anchor/session returns
+`WATCH_LOGIN_REQUIRED`; another server/user returns `ACCOUNT_MISMATCH`.
+Legacy watch-entry login remains available, but Android no longer offers password entry.

@@ -63,7 +63,7 @@ module ProviderControl {
         if(type.equals("hello")) {
             var same=ProviderPolicy.text(profile(),64) && profile().equals(command["p"]);
             reply(command,"hello",{"configured"=>AbsApi.isConfigured(),"paired"=>same,"pairing"=>pairing(command["p"]),
-                "caps"=>["setup_session","setup","cancel_pair","pair","authorize","download","inventory","events","ack_events","sync","redact"]});
+                "caps"=>["reuse_login","setup_session","setup","cancel_pair","pair","authorize","download","inventory","events","ack_events","sync","redact"]});
             return;
         }
         if(!ProviderPolicy.text(command["n"],64) || !command["n"].equals(nonce)){return;}
@@ -84,8 +84,9 @@ module ProviderControl {
             reply(command,"result",{"ok"=>true}); return;
         }
         if(Application.Storage.getValue(REDACTED)==true){error(command,"REDACTED");return;}
-        if(type.equals("setup") || type.equals("setup_session")) {
-            if(type.equals("setup_session")?!ProviderPolicy.sessionSetup(command):!ProviderPolicy.setup(command)){error(command,"INVALID_SETUP");return;}
+        if(type.equals("setup") || type.equals("setup_session") || type.equals("reuse_login")) {
+            var valid=type.equals("reuse_login")?ProviderPolicy.reuseSetup(command):(type.equals("setup_session")?ProviderPolicy.sessionSetup(command):ProviderPolicy.setup(command));
+            if(!valid){error(command,"INVALID_SETUP");return;}
             if(setup!=null){error(command,"BUSY");return;}
             setup=new ProviderSetupRequest(command);setup.begin();return;
         }
@@ -237,13 +238,18 @@ class ProviderSetupRequest {
     function active(){return ProviderControl.setup==self && ProviderControl.running && ProviderPolicy.accepts(command,ProviderControl.profile(),ProviderControl.nonce) && Application.Storage.getValue(ProviderControl.REDACTED)!=true;}
     function begin(){
         if(!AbsApi.sameAccount(command["url"],command["user"])) {finish("ACCOUNT_MISMATCH");return;}
+        if(command["t"].equals("reuse_login") && !AbsApi.canReuse(command["url"],command["user"])){finish("WATCH_LOGIN_REQUIRED");return;}
         ProviderSetupState.update("Checking Sidecar /health...");
         AbsApi.checkHealth(command["url"],method(:health));
     }
     function health(code,data){
         if(!active()){cancel();return;}
         if(code!=200 || !(data instanceof Lang.String) || !data.equals("ok")){finish(code==200?"INCOMPATIBLE_SIDECAR":ProviderSetupState.loginError(code));return;}
-        if(command["t"].equals("setup_session")) {
+        if(command["t"].equals("setup_session") || command["t"].equals("reuse_login")) {
+            if(command["t"].equals("reuse_login")) {
+                if(!AbsApi.canReuse(command["url"],command["user"])){finish("WATCH_LOGIN_REQUIRED");return;}
+                session=AbsApi.authToken();
+            }
             ProviderSetupState.update("Checking signed-in account...");
             AbsApi.validateSession(command["url"],session,method(:validated));return;
         }
