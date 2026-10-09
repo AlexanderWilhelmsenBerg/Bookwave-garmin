@@ -5,7 +5,8 @@ initiation work; an interrupted 25% transfer and Companion state/appearance rema
 [Native PR #22](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/pull/22) is merged after nine
 passing checks; main CI also passes. The retained-signer bundle uses source `9a0f7eaa`, label
 **TEST 2026-10-09a**, and both Companion/Audio Provider targets. The matching Android channel/Force
-sync/resume changes are in development; use the paired delivery APK, not the earlier APK2206.
+sync/resume changes are a separate [Android PR #249](https://github.com/AlexanderWilhelmsenBerg/Audiobookshelf-Manager-Claude/pull/249)
+delivery; install its matching recovery APK alongside this watch bundle.
 Full WR01–10 acceptance is recorded in [the recovery register](docs/testing/download-recovery.md).
 Earlier 2026-10-08 summaries below are historical and superseded for download success and layout.
 
