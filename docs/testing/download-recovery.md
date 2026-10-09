@@ -48,9 +48,7 @@ Sources: [System.exitTo](https://developer.garmin.com/connect-iq/api-docs/Toybox
 
 ## Verification record
 
-Focused Android regressions, actual fix-removal checks, strict verifyDebug, native type checking, contract
-guardrails, Node tests and exact-head PR CI are recorded with delivery. Native test-enabled compilation
-must not be reported as Run No Evil execution. No physical pass is inferred from compilation or photos.
+Android: 57 focused Garmin tests pass; actual removal of the registration repair, integer-major admission and accepted-request retry fails all three intended regressions, then restores source byte-for-byte. Full strict verifyDebug and exact-head CI are recorded with delivery. Native: final Companion and Audio Provider fenix847mm test-enabled builds pass type checking; guardrails/mirrored contract checks and seven actual Node tests pass. The bounded Windows Run No Evil attempt emits no result and is stopped; these native tests are compiled, not execution-verified. No physical pass is inferred from compilation or photos.
 
 ## Physical acceptance register
 
