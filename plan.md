@@ -3,8 +3,8 @@
 **Current hardware follow-up — 2026-10-09:** Owner confirms watch download admission/transfer and Android
 inventory/phone initiation now work. A transfer was interrupted at 25%; Companion state and visual
 acceptance failed. Channel-registration recovery, dual Force sync, scoped explicit resume and named
-download progress, and revised Companion geometry are implemented on the recovery branches; final
-checks/delivery and physical acceptance remain separate. [Current evidence and WR01–10 tests](docs/testing/download-recovery.md)
+download progress, and revised Companion geometry are merged in native PR #22 after passing CI; the matching Android changes and physical
+acceptance remain separate. [Current evidence and WR01–10 tests](docs/testing/download-recovery.md)
 supersede older blanket unknown-download/visual claims below. Build label: **TEST 2026-10-09a**.
 The following dated 2026-10-08 summaries are historical; they do not describe current hardware outcomes.
 

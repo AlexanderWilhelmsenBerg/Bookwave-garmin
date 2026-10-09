@@ -1,5 +1,16 @@
 # BookWave Garmin
 
+**Current recovery delivery — 2026-10-09:** Owner confirms watch downloads, Android inventory and phone
+initiation work; an interrupted 25% transfer and Companion state/appearance remain hardware retests.
+[Native PR #22](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/pull/22) is merged after nine
+passing checks; main CI also passes. The retained-signer bundle uses source `9a0f7eaa`, label
+**TEST 2026-10-09a**, and both Companion/Audio Provider targets. The matching Android channel/Force
+sync/resume changes are a separate [Android PR #249](https://github.com/AlexanderWilhelmsenBerg/Audiobookshelf-Manager-Claude/pull/249)
+delivery; install its matching recovery APK alongside this watch bundle.
+Full WR01–10 acceptance is recorded in [the recovery register](docs/testing/download-recovery.md).
+Earlier 2026-10-08 summaries below are historical and superseded for download success and layout.
+
+
 **Current setup — 2026-10-08:** Android setup now needs only the Sidecar address. It derives the
 username from the active BookWave profile and asks the watch to reuse its existing opaque Sidecar
 session (`reuse_login`). The watch requires a retained exact server/username account anchor, checks
@@ -91,7 +102,7 @@ are merged after passed CI. Native production/test compiles and guardrails pass;
 verification passes with all645 app debug tests and actual-source reversion evidence. Owner-reported
 phone setup, immediate Download and clipped errors failed; on-watch catalogue access worked. Current
 diagnostics separate Garmin -1002 from schema -20001, wrap/page errors and identify PHONE/Audio with
-button help. Actual download cause/success remains unverified. Use the retained-key testing ZIP for
+button help. Actual admission/transfer now works per owner; completion, resume and offline acceptance remain pending. Use the retained-key testing ZIP for
 repeat USB upgrades; [WD01–08 and current findings](docs/testing/watch-setup-diagnostics.md) remain open.
 
 The original provider-delivery evidence below is retained for provenance.
