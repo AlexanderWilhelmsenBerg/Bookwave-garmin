@@ -73,14 +73,15 @@ See [current owner findings and WD01–08](testing/watch-setup-diagnostics.md).
 
 Garmin's [device reference](https://developer.garmin.com/connect-iq/device-reference/fenix847mm/) and the pinned SDK device profile group AMOLED 47/51 mm under fenix847mm; size alone does not identify Solar/Pro variants.
 
-## New watch presentation
+## Current watch presentation — TEST 2026-10-09a
 
-Companion Help sits beside START (upper right); Exit beside BACK (lower right). Left-side arrow cues
-and a page counter identify UP/DOWN whenever full title/author/chapter/status text needs more pages.
-Companion Help explains phone Force sync and the separate BookWave Audio offline library. Audio
-setup/login/error views use the same BookWave theme and measured wrapping; Books appears only when
-the configured provider can enter its library. Read every error page for code, field and fixed reason.
-[Latest checks and acceptance](testing/watch-layout-and-duration.md).
+Companion shows a smaller phone-state header and measured, paged text on a dark teal reading surface.
+START opens a menu containing Sync phone, Watch audio and Help; BACK returns/exits. UP/DOWN and the
+page count indicate when long metadata continues. Help has a Back cue. Earlier direct Help/Exit edge
+labels and the broken headphone glyph are superseded. Watch audio explains the native Music route;
+it does not directly launch an Audio Content Provider. Audio setup/login/error views retain their
+independent geometry and measured wrapping. Read every error page for code, field and fixed reason.
+[Current checks and physical acceptance](testing/download-recovery.md).
 
 ## Recover an interrupted download / refresh Companion
 
