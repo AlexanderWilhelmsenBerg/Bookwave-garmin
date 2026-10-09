@@ -99,7 +99,7 @@ module ProviderControl {
             Application.Storage.setValue("bookwave.syncRequest.v1",command["r"]);
             Application.Storage.setValue(Store.FORCE_SYNC,true);
             reply(command,"result",{"ok"=>true,"state"=>"queued"});
-            try { Communications.startSync(); }
+            try { ProviderSyncRequest.start(); }
             catch(ex) { Application.Storage.setValue("bookwave.failedSyncRequest.v1",command["r"]); }
             return;
         }
@@ -200,7 +200,9 @@ module ProviderControl {
         if(!AbsApi.isConfigured()){error(command,"NOT_CONFIGURED");return;}
         var id=command["b"];
         if(JobStore.get(id)!=null) {
-            reply(command,"result",{"ok"=>true,"state"=>(JobStore.get(id)!=null)?"queued":"stored"});return;
+            reply(command,"result",{"ok"=>true,"state"=>"queued"});
+            try {ProviderSyncRequest.start();} catch(ex){error(command,"SOURCE_UNAVAILABLE");}
+            return;
         }
         if(download!=null){error(command,"BUSY");return;}
         download=new ProviderDownloadRequest(command);

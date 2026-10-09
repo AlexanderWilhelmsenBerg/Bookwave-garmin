@@ -1,7 +1,10 @@
 using Toybox.Application;
+using Toybox.Communications;
 
 // A claimed native sync request survives stop/process loss until an actual terminal outcome.
 module ProviderSyncRequest {
+    var active=false;
+    function start(){if(!active){Communications.startSync();}}
     const KEY="bookwave.syncRequest.v1";
     function current(){return Application.Storage.getValue(KEY);}
     function complete(id,success) {

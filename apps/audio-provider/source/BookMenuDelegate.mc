@@ -314,7 +314,7 @@ class BookMenuDelegate extends WatchUi.Menu2InputDelegate {
         });
 
         Notify.flash(Rez.Strings.queued);
-        Communications.startSync();
+        ProviderSyncRequest.start();
     }
 
     // Chunks already committed to the watch (downloaded or queued, all books),

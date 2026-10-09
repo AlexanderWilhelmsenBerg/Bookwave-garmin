@@ -40,6 +40,13 @@ class PhoneTransport {
         _timer.start(method(:heartbeat), 30000, true);
     }
 
+    function requestNow() {
+        if(!_running){return;}
+        _helloId=nextId();_order=new TransportOrder();_lastAck=null;_lastReceived=null;
+        _owner.transportStatus("Connecting to phone");
+        sendHello();
+    }
+
     function stop() {
         _running = false;
         _timer.stop();

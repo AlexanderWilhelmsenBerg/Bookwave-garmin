@@ -16,7 +16,7 @@ class CompanionView extends WatchUi.View {
         }
         if(_snapshot==null){
             var waiting=_connection.equals("Stored; waiting for phone")?"Waiting for sync":connection;
-            return "No book yet\nOpen phone app.\nUse Force sync.\n"+waiting;
+            return "No phone book\nStart or resume a book in BookWave.\nMenu > Sync phone\nOr phone Settings > Force sync.\n"+waiting;
         }
         // Preserve full metadata. Measured pages replace all old character limits and ellipses.
         return _snapshot.title+"\n"+PlaybackFormat.author(_snapshot)+"\n"+PlaybackFormat.chapter(_snapshot)+
@@ -24,15 +24,9 @@ class CompanionView extends WatchUi.View {
             "\n"+connection+"\n"+PlaybackFormat.recency(_snapshot);
     }
     function onUpdate(dc) {
-        WatchTheme.frame(dc,"BookWave","Help","Exit",false);
-        if(_snapshot==null || _loadStatus==SnapshotStoreState.LOAD_INVALID){WatchTheme.headphones(dc);}
-        else {
-            dc.setColor(WatchTheme.ACCENT,WatchTheme.PAPER);
-            dc.drawText(dc.getWidth()/2,dc.getHeight()*23/100,WatchTheme.HERO,PlaybackFormat.percent(_snapshot),Graphics.TEXT_JUSTIFY_CENTER);
-            dc.setColor(WatchTheme.INK,WatchTheme.PAPER);
-        }
-        pages=WatchTheme.page(dc,document(),page,"PHONE PLAYBACK","Exit");
-        if(pages>1){WatchTheme.framePageCues(dc);}if(page>=pages){page=pages-1;}
+        var status=_snapshot==null?"PHONE BOOK":(_snapshot.playing?"PHONE / PLAYING":"PHONE / PAUSED");
+        pages=WatchTheme.companion(dc,document(),page,status,"Menu");
+        if(page>=pages){page=pages-1;}
     }
     function move(delta){page+=delta;if(page<0){page=0;}if(page>=pages){page=pages-1;}WatchUi.requestUpdate();return true;}
 }

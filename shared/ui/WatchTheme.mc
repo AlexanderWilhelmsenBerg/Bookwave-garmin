@@ -8,6 +8,37 @@ module WatchTheme {
     const MUTED=0xBEC9C8; const ACCENT=0x9ACACC; const RULE=0x3F4949;
     const BODY=Graphics.FONT_XTINY; const HEADING=Graphics.FONT_SMALL;
     const HERO=Graphics.FONT_MEDIUM; const GAP=4;
+    // Companion has its own geometry: side-key text never shares the reading area.
+    // Keep the center rectangle inside both supported round displays; wrap by measured glyph width.
+    function companion(dc,text,page,status,selectLabel) {
+        var w=dc.getWidth();var h=dc.getHeight();
+        dc.setColor(INK,PAPER);dc.clear();
+        dc.setColor(ACCENT,PAPER);
+        dc.drawText(w/2,h*11/100,BODY,"BookWave",Graphics.TEXT_JUSTIFY_CENTER);
+        dc.setColor(MUTED,PAPER);
+        dc.drawText(w/2,h*20/100,BODY,status,Graphics.TEXT_JUSTIFY_CENTER);
+        dc.setColor(SURFACE,PAPER);
+        dc.fillRoundedRectangle(w*13/100,h*29/100,w*74/100,h*42/100,18);
+        var measure=new RoundTextMeasure(dc,BODY);
+        var rows=RoundText.wrap(text,w*66/100,measure.method(:width));
+        var step=dc.getFontHeight(BODY)+GAP;
+        var count=(h*38/100/step).toNumber();if(count<1){count=1;}
+        var pages=((rows.size()+count-1)/count).toNumber();if(pages<1){pages=1;}
+        if(page>=pages){page=pages-1;}if(page<0){page=0;}
+        dc.setColor(INK,SURFACE);var y=h*31/100;
+        for(var i=page*count;i<rows.size() && i<(page+1)*count;i++) {
+            dc.drawText(w*17/100,y,BODY,rows[i],Graphics.TEXT_JUSTIFY_LEFT);y+=step;
+        }
+        dc.setColor(ACCENT,PAPER);
+        dc.drawText(w/2,h*75/100,BODY,"START: "+selectLabel,Graphics.TEXT_JUSTIFY_CENTER);
+        dc.setColor(MUTED,PAPER);
+        dc.drawText(w/2,h*84/100,BODY,pages>1?"UP/DOWN  "+(page+1)+"/"+pages:"BACK: Exit",Graphics.TEXT_JUSTIFY_CENTER);
+        // Physical-key markers only, outside the text rectangle.
+        dc.setColor(ACCENT,PAPER);
+        dc.drawLine(w*91/100,h*28/100,w*94/100,h*30/100);
+        dc.drawLine(w*94/100,h*30/100,w*91/100,h*32/100);
+        return pages;
+    }
     function frame(dc,title,selectLabel,backLabel,paging) {
         var w=dc.getWidth();var h=dc.getHeight();
         dc.setColor(INK,PAPER);dc.clear();dc.setColor(SURFACE,PAPER);

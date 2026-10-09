@@ -62,6 +62,7 @@ class SyncDelegate extends Communications.SyncDelegate {
     }
 
     function onStartSync() {
+        ProviderSyncRequest.active=true;
         mBookwaveRequest = ProviderSyncRequest.current();
         // A delegate normally has one run, but resetting here also makes a
         // simulator/manual re-entry deterministic and prevents stale progress
@@ -125,6 +126,7 @@ class SyncDelegate extends Communications.SyncDelegate {
     }
 
     function onProgressDone() {
+        ProviderSyncRequest.active=false;
         if(!mProgressSync.succeeded && mSyncError==null){mSyncError="Progress sync failed. Retry when online.";}
         // Report a download error (if any) only now - AFTER the progress exchange
         // has had its chance to flush a dirty offline listen. null on a clean sync.
@@ -145,6 +147,7 @@ class SyncDelegate extends Communications.SyncDelegate {
     // System-initiated cancel: stop cleanly. In-flight request is abandoned;
     // jobs stay in Storage with their cursor, so the next sync resumes.
     function onStopSync() {
+        ProviderSyncRequest.active=false;
         Communications.cancelAllRequests();
         Communications.notifySyncComplete(null);
     }
