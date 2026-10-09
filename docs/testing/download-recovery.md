@@ -67,3 +67,15 @@ Android: 57 focused Garmin tests pass; actual removal of the registration repair
 
 iOS, Silo, watch face and Data Field are not started. Credential bootstrap and Sidecar deployment remain
 separate pending work; this change exports no Android token/password and changes no running Sidecar.
+
+## Native delivery identity
+
+Native [PR #22](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/pull/22) merged as
+`59c5e815` after [all nine PR checks](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/actions/runs/37902367149)
+passed at `9a0f7eaa`. [Main CI](https://github.com/AlexanderWilhelmsenBerg/Bookwave-garmin/actions/runs/37902678807)
+also passes. Four production PRGs locally type-check at level 1 using SDK 9.2.0 and the retained signer.
+The local `BookWave-fenix-8-testing.zip` uses source `9a0f7eaa1e25f6ea80b23b67973103bcdbf58e37`,
+label TEST 2026-10-09a, and SHA-256
+`0d18b395ab63beb404ca7b1f7335d6d05a72b0f891b8112768f1dcf3052ec393`.
+It contains both apps/targets, source/build identity, hashes, guide and MIT notice/provenance;
+no private key is packaged. Android's matching delivery is recorded with its PR/build.
