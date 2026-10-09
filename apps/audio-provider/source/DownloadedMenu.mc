@@ -20,6 +20,9 @@ class DownloadedMenu extends WatchUi.Menu2 {
         // logs the user in first if they aren't configured yet.
         addItem(new WatchUi.MenuItem(WatchUi.loadResource(Rez.Strings.browseLibrary), null, "browse", null));
 
+        if(ProviderDownloads.pendingIds().size()>0) {
+            addItem(new WatchUi.MenuItem("Download progress","Resume unfinished books","downloadprogress",{}));
+        }
         var index = Application.Storage.getValue(Store.BOOK_INDEX);
         if (index == null) { index = []; }
 

@@ -14,6 +14,9 @@ class BookActionMenu extends WatchUi.Menu2 {
 
     function initialize(itemId, title) {
         Menu2.initialize({ :title => title });
+        if(ProviderDownloads.unfinished(itemId)) {
+            addItem(new WatchUi.MenuItem("Resume download",ProviderDownloads.percent(itemId)+"% downloaded","resumedownload",{}));
+        }
         // A completed book has no meaningful resume cursor: offering it was
         // the UI half of the old "last part repeats" bug. Start-over remains
         // available and immediately clears finished once playback is reported.
@@ -121,6 +124,12 @@ class BookActionMenuDelegate extends WatchUi.Menu2InputDelegate {
 
     function onSelect(item) {
         var id = item.getId();
+        if((id instanceof Toybox.Lang.String) && id.equals("resumedownload")) {
+            if(!ProviderDownloads.unfinished(mItemId)){return;}
+            if(JobStore.get(mItemId)!=null){ProviderSyncRequest.start();}
+            else {new BookMenuDelegate().downloadAtSpeed(mItemId,BookStore.activeSpeed(mItemId));}
+            return;
+        }
 
         if ((id instanceof Toybox.Lang.String) && id.equals("speed")) {
             WatchUi.pushView(new BookSpeedChoiceMenu(mItemId),

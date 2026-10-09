@@ -17,6 +17,9 @@ class DownloadedMenuDelegate extends WatchUi.Menu2InputDelegate {
 
     function onSelect(item) {
         var id = item.getId();
+        if((id instanceof Toybox.Lang.String) && id.equals("downloadprogress")) {
+            WatchUi.pushView(new DownloadProgressMenu(),new DownloadProgressDelegate(),WatchUi.SLIDE_LEFT);return;
+        }
 
         // The "Browse library" row -> open the library (LibraryView logs in first
         // if we're not configured yet, otherwise it lists books to download).
@@ -41,7 +44,7 @@ class DownloadedMenuDelegate extends WatchUi.Menu2InputDelegate {
         // constraint every sidecar call has.
         if ((id instanceof Toybox.Lang.String) && id.equals("syncnow")) {
             Application.Storage.setValue(Store.FORCE_SYNC, true);
-            Communications.startSync();
+            ProviderSyncRequest.start();
             Notify.flash(Rez.Strings.syncing);
             return;
         }

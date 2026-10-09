@@ -14,7 +14,7 @@ function companionPresentationPreservesLongMetadataAndSeparatesOfflineHelp(logge
     Test.assert(body.find("Waiting for phone")!=null);
     var empty=new CompanionView(null,SnapshotStoreState.LOAD_NEVER_SYNCED,null);
     Test.assert(empty.document().find("Force sync")!=null);
-    Test.assert(empty.document().find("Waiting for sync")!=null);
+    Test.assert(empty.document().find("Sync phone")!=null);
     Test.assert(empty.document().find("…")==null);
     return true;
 }

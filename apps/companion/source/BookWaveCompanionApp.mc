@@ -38,6 +38,10 @@ class BookWaveCompanionApp extends Application.AppBase {
         return [_view,new CompanionDelegate(_view)];
     }
 
+    function syncPhone() {
+        if(_transport!=null){_transport.requestNow();}
+    }
+
     function transportStatus(value) {
         _connection = value;
         if (_view != null) { _view.setConnection(value); WatchUi.requestUpdate(); }
